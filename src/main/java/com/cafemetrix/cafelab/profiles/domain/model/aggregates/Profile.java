@@ -1,7 +1,6 @@
 package com.cafemetrix.cafelab.profiles.domain.model.aggregates;
 
 import com.cafemetrix.cafelab.profiles.domain.model.commands.CreateProfileCommand;
-import com.cafemetrix.cafelab.profiles.domain.model.commands.UpdateProfileCommand;
 import com.cafemetrix.cafelab.profiles.domain.model.valueobjects.EmailAddress;
 import com.cafemetrix.cafelab.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
