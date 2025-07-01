@@ -1,5 +1,4 @@
 package com.cafemetrix.cafelab.barista.domain.model.commands;
-
 import java.time.LocalDateTime;
 
 public record CreateCuppingSessionCommand(
