@@ -23,7 +23,8 @@ public class LotTransformer {
                 lot.getAltitude().value(),
                 lot.getWeight().value(),
                 lot.getCertifications().values(),
-                lot.getOrigin().value()
+                lot.getOrigin().value(),
+                lot.getStatus()
         );
     }
     
@@ -37,7 +38,8 @@ public class LotTransformer {
                 request.altitude(),
                 request.weight(),
                 request.certifications(),
-                request.origin()
+                request.origin(),
+                request.status()
         );
     }
     
@@ -50,7 +52,8 @@ public class LotTransformer {
                 request.altitude(),
                 request.weight(),
                 request.certifications(),
-                request.origin()
+                request.origin(),
+                request.status()
         );
     }
 } 

@@ -29,7 +29,7 @@ public class LotCommandServiceImpl implements LotCommandService {
         entity.setWeight(command.weight());
         entity.setCertifications(String.join(",", command.certifications()));
         entity.setOrigin(command.origin());
-        
+        entity.setStatus(command.status());
         LotEntity saved = lotRepository.save(entity);
         return toDomain(saved);
     }
@@ -46,6 +46,7 @@ public class LotCommandServiceImpl implements LotCommandService {
         entity.setWeight(command.weight());
         entity.setCertifications(String.join(",", command.certifications()));
         entity.setOrigin(command.origin());
+        entity.setStatus(command.status());
         
         LotEntity saved = lotRepository.save(entity);
         return toDomain(saved);
@@ -71,7 +72,8 @@ public class LotCommandServiceImpl implements LotCommandService {
                 new Altitude(entity.getAltitude()),
                 new Weight(entity.getWeight()),
                 new Certifications(java.util.Arrays.asList(entity.getCertifications().split(","))),
-                new Origin(entity.getOrigin())
+                new Origin(entity.getOrigin()),
+                entity.getStatus()
         );
     }
 } 

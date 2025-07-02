@@ -15,7 +15,8 @@ public record CreateLotCommand(
     String altitude,
     String weight,
     List<String> certifications,
-    String origin
+    String origin,
+    String status
 ) {
     public CreateLotCommand {
         if (supplierId == null) {
@@ -44,6 +45,9 @@ public record CreateLotCommand(
         }
         if (origin == null || origin.trim().isEmpty()) {
             throw new IllegalArgumentException("Origin cannot be null or empty");
+        }
+        if (status == null || status.trim().isEmpty()) {
+            throw new IllegalArgumentException("Status cannot be null or empty");
         }
     }
 } 

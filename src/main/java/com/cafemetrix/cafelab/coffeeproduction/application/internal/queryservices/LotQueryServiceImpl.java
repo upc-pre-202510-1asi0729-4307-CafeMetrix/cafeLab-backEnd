@@ -61,7 +61,8 @@ public class LotQueryServiceImpl implements LotQueryService {
                 new Altitude(entity.getAltitude()),
                 new Weight(entity.getWeight()),
                 new Certifications(java.util.Arrays.asList(entity.getCertifications().split(","))),
-                new Origin(entity.getOrigin())
+                new Origin(entity.getOrigin()),
+                entity.getStatus()
         );
     }
 } 

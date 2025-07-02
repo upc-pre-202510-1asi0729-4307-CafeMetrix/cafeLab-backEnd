@@ -12,5 +12,6 @@ public record LotDto(
     String altitude,
     String weight,
     List<String> certifications,
-    String origin
+    String origin,
+    String status
 ) {} 

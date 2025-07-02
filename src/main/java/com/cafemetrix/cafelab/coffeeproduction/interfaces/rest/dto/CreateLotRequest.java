@@ -10,5 +10,6 @@ public record CreateLotRequest(
     String altitude,
     String weight,
     List<String> certifications,
-    String origin
+    String origin,
+    String status
 ) {} 

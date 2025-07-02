@@ -36,6 +36,9 @@ public class LotEntity {
     @Column(nullable = false)
     private String origin;
 
+    @Column(nullable = false)
+    private String status; // 'green' or 'roasted'
+
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -57,4 +60,6 @@ public class LotEntity {
     public void setCertifications(String certifications) { this.certifications = certifications; }
     public String getOrigin() { return origin; }
     public void setOrigin(String origin) { this.origin = origin; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 } 
