@@ -6,7 +6,7 @@ import com.cafemetrix.cafelab.barista.domain.services.CuppingSessionCommandServi
 import com.cafemetrix.cafelab.barista.domain.services.CuppingSessionQueryService;
 import com.cafemetrix.cafelab.barista.interfaces.rest.resources.*;
 import com.cafemetrix.cafelab.barista.interfaces.rest.transform.*;
-
+import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 
 @RestController
 @RequestMapping(value = "/api/v1/cupping-sessions", produces = APPLICATION_JSON_VALUE)
