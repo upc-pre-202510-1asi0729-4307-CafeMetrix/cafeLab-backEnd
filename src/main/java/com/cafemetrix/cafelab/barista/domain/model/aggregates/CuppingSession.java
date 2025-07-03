@@ -1,6 +1,7 @@
 package com.cafemetrix.cafelab.barista.domain.model.aggregates;
 
 import com.cafemetrix.cafelab.barista.domain.model.commands.CreateCuppingSessionCommand;
+import com.cafemetrix.cafelab.barista.domain.model.commands.UpdateCuppingSessionCommand;
 import com.cafemetrix.cafelab.coffeeproduction.domain.model.valueobjects.*;
 import com.cafemetrix.cafelab.coffees.domain.model.valueobjects.CoffeeVariety;
 import com.cafemetrix.cafelab.barista.domain.model.valueobjects.CuppingSessionName;
@@ -83,6 +84,12 @@ public class CuppingSession extends AuditableAbstractAggregateRoot<CuppingSessio
 
     public void setFavorite(Boolean favorite) {
         this.favorite = favorite;
+    }
+    public void updateFromCommand(UpdateCuppingSessionCommand command) {
+        this.name = new CuppingSessionName(command.name());
+        this.origin = new Origin(command.origin());
+        this.variety = new CoffeeVariety(command.variety());
+        this.favorite = command.favorite();
     }
 
 

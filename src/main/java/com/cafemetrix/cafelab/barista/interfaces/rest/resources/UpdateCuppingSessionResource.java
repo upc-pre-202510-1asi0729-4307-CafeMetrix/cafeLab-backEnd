@@ -1,13 +1,14 @@
 package com.cafemetrix.cafelab.barista.interfaces.rest.resources;
 
-/**
- * Resource for updating a cupping session.
- */
-public record UpdateCuppingSessionResource(String name, String description) {
+public record UpdateCuppingSessionResource(
+        String name,
+        String origin,
+        String variety,
+        Boolean favorite
+) {
     public UpdateCuppingSessionResource {
-        if (name == null || name.isBlank())
-            throw new IllegalArgumentException("Name is required");
-        if (description == null || description.isBlank())
-            throw new IllegalArgumentException("Description is required");
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Name is required");
+        if (origin == null || origin.isBlank()) throw new IllegalArgumentException("Origin is required");
+        if (variety == null || variety.isBlank()) throw new IllegalArgumentException("Variety is required");
     }
 }

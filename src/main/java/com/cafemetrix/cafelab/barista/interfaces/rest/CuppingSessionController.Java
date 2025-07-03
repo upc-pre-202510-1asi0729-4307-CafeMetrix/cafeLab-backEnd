@@ -6,6 +6,7 @@ import com.cafemetrix.cafelab.barista.domain.services.CuppingSessionCommandServi
 import com.cafemetrix.cafelab.barista.domain.services.CuppingSessionQueryService;
 import com.cafemetrix.cafelab.barista.interfaces.rest.resources.*;
 import com.cafemetrix.cafelab.barista.interfaces.rest.transform.*;
+import com.cafemetrix.cafelab.coffeeproduction.domain.model.valueobjects.UserId;
 import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,7 +51,7 @@ public class CuppingSessionController {
     @GetMapping
     @Operation(summary = "Get all cupping sessions for a user")
     public ResponseEntity<List<CuppingSessionResource>> getAll(@RequestParam Long userId) {
-        var query = new GetAllCuppingSessionsQuery(userId);
+        var query = new GetAllCuppingSessionsQuery(new UserId(userId));
         var sessions = queryService.handle(query);
         var resources = sessions.stream()
                 .map(CuppingSessionResourceFromEntityAssembler::toResourceFromEntity)

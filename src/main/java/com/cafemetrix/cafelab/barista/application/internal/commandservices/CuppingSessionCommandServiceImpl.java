@@ -4,8 +4,11 @@ import com.cafemetrix.cafelab.barista.domain.model.aggregates.CuppingSession;
 import com.cafemetrix.cafelab.barista.domain.model.commands.CreateCuppingSessionCommand;
 import com.cafemetrix.cafelab.barista.domain.model.commands.UpdateCuppingSessionCommand;
 import com.cafemetrix.cafelab.barista.domain.model.commands.DeleteCuppingSessionCommand;
+import com.cafemetrix.cafelab.barista.domain.model.valueobjects.CuppingSessionName;
 import com.cafemetrix.cafelab.barista.domain.services.CuppingSessionCommandService;
 import com.cafemetrix.cafelab.barista.infrastructure.persistence.jpa.repositories.CuppingSessionRepository;
+import com.cafemetrix.cafelab.coffeeproduction.domain.model.valueobjects.Origin;
+import com.cafemetrix.cafelab.coffees.domain.model.valueobjects.CoffeeVariety;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,9 +21,20 @@ import java.util.Optional;
 public class CuppingSessionCommandServiceImpl implements CuppingSessionCommandService {
 
     private final CuppingSessionRepository cuppingSessionRepository;
+    private CuppingSessionName name;
+    private Origin origin;
+    private CoffeeVariety variety;
+    private Boolean favorite;
 
     public CuppingSessionCommandServiceImpl(CuppingSessionRepository cuppingSessionRepository) {
         this.cuppingSessionRepository = cuppingSessionRepository;
+    }
+
+    public void updateFromCommand(UpdateCuppingSessionCommand command) {
+        this.name = new CuppingSessionName(command.name());
+        this.origin = new Origin(command.origin());
+        this.variety = new CoffeeVariety(command.variety());
+        this.favorite = command.favorite();
     }
 
     @Override
@@ -42,8 +56,7 @@ public class CuppingSessionCommandServiceImpl implements CuppingSessionCommandSe
         }
 
         var sessionToUpdate = result.get();
-
-        sessionToUpdate.setFavorite(command.favorite());
+        sessionToUpdate.updateFromCommand(command);
 
         try {
             cuppingSessionRepository.save(sessionToUpdate);
