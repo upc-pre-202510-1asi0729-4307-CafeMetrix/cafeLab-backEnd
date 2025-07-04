@@ -9,42 +9,50 @@ import com.cafemetrix.cafelab.barista.interfaces.rest.transform.*;
 import com.cafemetrix.cafelab.coffeeproduction.domain.model.valueobjects.UserId;
 import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+/**
+ * Cupping Sessions Controller
+ */
 
 @RestController
 @RequestMapping(value = "/api/v1/cupping-sessions", produces = APPLICATION_JSON_VALUE)
-@Tag(name = "Cupping Sessions", description = "Manage cupping sessions")
+@Tag(name = "Cupping Sessions", description = "Available cupping sessions endpoints")
 public class CuppingSessionController {
 
-    private final CuppingSessionCommandService commandService;
-    private final CuppingSessionQueryService queryService;
+    private final CuppingSessionCommandService cuppingSessionCommandService;
+    private final CuppingSessionQueryService cuppingSessionQueryService;
 
-    public CuppingSessionController(
-            CuppingSessionCommandService commandService,
-            CuppingSessionQueryService queryService) {
-        this.commandService = commandService;
-        this.queryService = queryService;
+    public CuppingSessionController(CuppingSessionCommandService cuppingSessionCommandService, CuppingSessionQueryService cuppingSessionQueryService) {
+        this.cuppingSessionCommandService = cuppingSessionCommandService;
+        this.cuppingSessionQueryService = cuppingSessionQueryService;
     }
+
 
     @PostMapping
     @Operation(summary = "Create a new cupping session")
-    public ResponseEntity<CuppingSessionResource> create(@RequestBody CreateCuppingSessionResource resource) {
-        var command = CreateCuppingSessionCommandFromResourceAssembler.toCommandFromResource(resource);
-        var sessionId = commandService.handle(command);
-        var sessionOpt = queryService.handle(new GetCuppingSessionByIdQuery(sessionId));
-        return sessionOpt
-                .map(session -> ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .body(CuppingSessionResourceFromEntityAssembler.toResourceFromEntity(session)))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Cupping Session Created"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    public ResponseEntity<CuppingSessionResource> createCuppingSession(@RequestBody CreateCuppingSessionResource resource) {
+        var createCuppingSessionCommand = CreateCuppingSessionCommandFromResourceAssembler.toCommandFromResource(resource);
+        var sessionId = cuppingSessionCommandService.handle(createCuppingSessionCommand);
+        var createdSessionOpt = cuppingSessionQueryService.handle(new GetCuppingSessionByIdQuery(sessionId));
+
+        return createdSessionOpt
+                .map(session -> new ResponseEntity<>(
+                        CuppingSessionResourceFromEntityAssembler.toResourceFromEntity(session),
+                        HttpStatus.CREATED))
                 .orElse(ResponseEntity.badRequest().build());
     }
 
@@ -52,7 +60,7 @@ public class CuppingSessionController {
     @Operation(summary = "Get all cupping sessions for a user")
     public ResponseEntity<List<CuppingSessionResource>> getAll(@RequestParam Long userId) {
         var query = new GetAllCuppingSessionsQuery(new UserId(userId));
-        var sessions = queryService.handle(query);
+        var sessions = cuppingSessionQueryService.handle(query);
         var resources = sessions.stream()
                 .map(CuppingSessionResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
@@ -63,7 +71,7 @@ public class CuppingSessionController {
     @Operation(summary = "Get cupping session by ID")
     public ResponseEntity<CuppingSessionResource> getById(@PathVariable Long id) {
         var query = new GetCuppingSessionByIdQuery(id);
-        var session = queryService.handle(query);
+        var session = cuppingSessionQueryService.handle(query);
         return session.map(value -> ResponseEntity.ok(
                         CuppingSessionResourceFromEntityAssembler.toResourceFromEntity(value)))
                 .orElse(ResponseEntity.notFound().build());
@@ -75,7 +83,7 @@ public class CuppingSessionController {
             @PathVariable Long id,
             @RequestBody UpdateCuppingSessionResource resource) {
         var command = UpdateCuppingSessionCommandFromResourceAssembler.toCommandFromResource(id, resource);
-        var updated = commandService.handle(command);
+        var updated = cuppingSessionCommandService.handle(command);
         return updated.map(value -> ResponseEntity.ok(
                         CuppingSessionResourceFromEntityAssembler.toResourceFromEntity(value)))
                 .orElse(ResponseEntity.notFound().build());
@@ -85,7 +93,7 @@ public class CuppingSessionController {
     @Operation(summary = "Delete a cupping session")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         var command = new DeleteCuppingSessionCommand(id);
-        commandService.handle(command);
+        cuppingSessionCommandService.handle(command);
         return ResponseEntity.ok(new MessageResource("Cupping session deleted successfully"));
     }
 }

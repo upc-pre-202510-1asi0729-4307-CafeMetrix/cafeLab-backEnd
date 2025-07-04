@@ -24,31 +24,34 @@ import java.time.LocalDateTime;
 public class CuppingSession extends AuditableAbstractAggregateRoot<CuppingSession> {
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "name"))
+    @AttributeOverride(name = "value", column = @Column(name = "cupping_name"))
     private CuppingSessionName name;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "origin"))
+    @AttributeOverride(name = "value", column = @Column(name = "cupping_origin"))
     private Origin origin;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "variety"))
+    @AttributeOverride(name = "value", column = @Column(name = "cupping_variety"))
     private CoffeeVariety variety;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "processing"))
+    @AttributeOverride(name = "value", column = @Column(name = "processing_method"))
     private ProcessingMethod processingMethod;
 
     private boolean favorite;
 
     @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "roast_profile"))
     private ProfileName roastProfile;
 
     @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "lot_id"))
     private LotId lotId;
 
     @Embedded
-    private com.cafemetrix.cafelab.coffeeproduction.domain.model.valueobjects.UserId userId;
+    @AttributeOverride(name = "value", column = @Column(name = "user_id"))
+    private UserId userId;
 
     private LocalDateTime date;
 
@@ -66,15 +69,15 @@ public class CuppingSession extends AuditableAbstractAggregateRoot<CuppingSessio
      * @see CreateCuppingSessionCommand
      */
     public CuppingSession(CreateCuppingSessionCommand command) {
-        this.name = new CuppingSessionName(command.name());
-        this.origin = new Origin(command.origin());
-        this.variety = new CoffeeVariety(command.variety());
-        this.processingMethod = new ProcessingMethod(command.processingMethod());
+        this.name = new CuppingSessionName(command.cuppingSessionName().name());
+        this.origin = new Origin(command.origin().value());
+        this.variety = new CoffeeVariety(command.variety().value());
+        this.processingMethod = new ProcessingMethod(command.processingMethod().value());
         this.favorite = command.favorite();
 
-        this.roastProfile = new ProfileName(command.roastProfile());
-        this.lotId = new LotId(command.lotId());
-        this.userId = new UserId(command.userId());
+        this.roastProfile = new ProfileName(command.roastProfile().value());
+        this.lotId = new LotId(command.lotId().value());
+        this.userId = new UserId(command.userId().value());
         this.date = command.date();
     }
 
@@ -91,6 +94,8 @@ public class CuppingSession extends AuditableAbstractAggregateRoot<CuppingSessio
         this.variety = new CoffeeVariety(command.variety());
         this.favorite = command.favorite();
     }
+
+
 
 
 

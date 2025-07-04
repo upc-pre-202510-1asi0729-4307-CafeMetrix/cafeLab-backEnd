@@ -24,7 +24,7 @@ public interface CuppingSessionRepository extends JpaRepository<CuppingSession, 
      * @param name The name of the cupping session
      * @return An Optional of the cupping session
      */
-    Optional<CuppingSession> findByNameValue(String name);
+    Optional<CuppingSession> findByName_Name(String name);
 
     /**
      * Find all cupping sessions by user id
@@ -40,7 +40,7 @@ public interface CuppingSessionRepository extends JpaRepository<CuppingSession, 
      * @param name The name of the cupping session
      * @return True if the session exists, false otherwise
      */
-    boolean existsByNameValue(String name);
+    boolean existsByName_Name(String name);
 
     /**
      * Check if a cupping session exists by name excluding a specific id
@@ -49,5 +49,5 @@ public interface CuppingSessionRepository extends JpaRepository<CuppingSession, 
      * @param id The id to exclude from the check
      * @return True if another session with the same name exists, false otherwise
      */
-    boolean existsByNameValueAndIdIsNot(String name, Long id);
+    boolean existsByName_NameAndIdIsNot(String name, Long id);
 }
