@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementation of Preparation Context Facade
- */
 @Service
 public class PreparationContextFacadeImpl implements PreparationContextFacade {
     private final RecipeCommandService recipeCommandService;
@@ -45,9 +42,9 @@ public class PreparationContextFacadeImpl implements PreparationContextFacade {
     public Long createRecipe(Long userId, String name, String imageUrl, String extractionMethod,
                            String ratio, Long cuppingSessionId, Long portfolioId, Integer preparationTime,
                            String steps, String tips, String cupping, String grindSize) {
-        var command = new CreateRecipeCommand(userId, name, imageUrl, extractionMethod, ratio,
-                cuppingSessionId, portfolioId, preparationTime, steps, tips, cupping, grindSize);
-        return recipeCommandService.handle(command).getId();
+        var createRecipeCommand = new CreateRecipeCommand(userId, name, imageUrl, extractionMethod,
+                ratio, cuppingSessionId, portfolioId, preparationTime, steps, tips, cupping, grindSize);
+        var recipe = recipeCommandService.handle(createRecipeCommand);
         return recipe.map(Recipe::getId).orElse(0L);
     }
 
@@ -58,29 +55,19 @@ public class PreparationContextFacadeImpl implements PreparationContextFacade {
 
     @Override
     public Optional<Recipe> getRecipeById(Long recipeId) {
-        return recipeQueryService.handle(recipeId);
-    }
-
-    @Override
-    public void deleteRecipe(Long recipeId) {
-        // Primero eliminamos los ingredientes asociados
-        var ingredients = ingredientQueryService.handle(recipeId);
-        ingredients.forEach(ingredient -> 
-            ingredientCommandService.delete(ingredient.getId())
-        );
-        // Luego eliminamos la receta
-        recipeCommandService.delete(recipeId);
+        return recipeQueryService.handle(new GetRecipeByIdQuery(recipeId));
     }
 
     @Override
     public Long createIngredient(Long recipeId, String name, Double amount, String unit) {
-        var command = new CreateIngredientCommand(recipeId, name, amount, unit);
-        return ingredientCommandService.handle(command).getId();
+        var createIngredientCommand = new CreateIngredientCommand(recipeId, name, amount, unit);
+        var ingredient = ingredientCommandService.handle(createIngredientCommand);
+        return ingredient.map(Ingredient::getId).orElse(0L);
     }
 
     @Override
     public List<Ingredient> getIngredientsByRecipeId(Long recipeId) {
-        return ingredientQueryService.handle(recipeId);
+        return ingredientQueryService.handle(new GetIngredientsByRecipeIdQuery(recipeId));
     }
 
     @Override
@@ -91,16 +78,16 @@ public class PreparationContextFacadeImpl implements PreparationContextFacade {
 
     @Override
     public List<Portfolio> getAllPortfolios() {
-        return portfolioQueryService.handle();
+        return portfolioQueryService.handle(new GetAllPortfoliosQuery());
     }
 
     @Override
     public Optional<Portfolio> getPortfolioById(Long portfolioId) {
-        return portfolioQueryService.handle(portfolioId);
+        return portfolioQueryService.handle(new GetPortfolioByIdQuery(portfolioId));
     }
 
     @Override
     public List<Portfolio> getPortfoliosByUserId(Long userId) {
-        return portfolioQueryService.handleByUserId(userId);
+        return portfolioQueryService.handle(new GetPortfoliosByUserIdQuery(userId));
     }
 } 

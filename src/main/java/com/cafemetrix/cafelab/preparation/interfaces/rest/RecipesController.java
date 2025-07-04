@@ -38,20 +38,6 @@ public class RecipesController {
                 .body(new MessageResource("No se pudo crear la receta"));
         }
 
-        for (var ingredientResource : resource.ingredients()) {
-            var ingredientId = preparationContextFacade.createIngredient(
-                recipeId,
-                ingredientResource.name(),
-                ingredientResource.amount(),
-                ingredientResource.unit()
-            );
-            if (ingredientId == 0L) {
-                preparationContextFacade.deleteRecipe(recipeId);
-                return ResponseEntity.badRequest()
-                    .body(new MessageResource("Error al crear los ingredientes"));
-            }
-        }
-
         var recipe = preparationContextFacade.getRecipeById(recipeId);
         if (recipe.isEmpty()) {
             return ResponseEntity.badRequest()

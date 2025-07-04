@@ -12,10 +12,6 @@ import lombok.Getter;
 @Entity
 public class Recipe extends AuditableAbstractAggregateRoot<Recipe> {
     
-    /**
-     * -- GETTER --
-     * ID del usuario que creó la receta
-     */
     @Getter
     @Column(nullable = false)
     private Long userId;
@@ -33,27 +29,14 @@ public class Recipe extends AuditableAbstractAggregateRoot<Recipe> {
     @Column(name = "ratio", length = 10, nullable = false)
     private String ratio;
 
-    /**
-     * -- GETTER --
-     * ID de la sesión de catación asociada
-     */
     @Getter
     @Column(name = "cupping_session_id")
     private Long cuppingSessionId;
 
-    /**
-     * -- GETTER --
-     * ID del portafolio al que pertenece
-     */
     @Getter
     @Column(name = "portfolio_id")
     private Long portfolioId;
 
-    /**
-     * -- GETTER --
-     * Tiempo de preparación en minutos
-     */
-    @Getter
     @Column(name = "preparation_time", nullable = false)
     private Integer preparationTime;
 
@@ -112,59 +95,14 @@ public class Recipe extends AuditableAbstractAggregateRoot<Recipe> {
         this.grindSize = command.grindSize();
     }
 
-    /**
-     * Nombre de la receta
-     */
-    public String getName() {
-        return name.value();
-    }
-
-    /**
-     * URL de la imagen de la receta
-     */
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    /**
-     * Método de extracción utilizado
-     */
-    public ExtractionMethod getExtractionMethod() {
-        return extractionMethod;
-    }
-
-    /**
-     * Ratio de café/agua utilizado
-     */
-    public String getRatio() {
-        return ratio;
-    }
-
-    /**
-     * Pasos de preparación
-     */
-    public String getSteps() {
-        return steps;
-    }
-
-    /**
-     * Consejos adicionales
-     */
-    public String getTips() {
-        return tips;
-    }
-
-    /**
-     * Resultado de la catación
-     */
-    public String getCupping() {
-        return cupping;
-    }
-
-    /**
-     * Tamaño de molienda
-     */
-    public String getGrindSize() {
-        return grindSize;
-    }
+    // Getters
+    public String getName() { return name.value(); }
+    public String getImageUrl() { return imageUrl; }
+    public ExtractionMethod getExtractionMethod() { return extractionMethod; }
+    public String getRatio() { return ratio; }
+    public Integer getPreparationTime() { return preparationTime; }
+    public String getSteps() { return steps; }
+    public String getTips() { return tips; }
+    public String getCupping() { return cupping; }
+    public String getGrindSize() { return grindSize; }
 } 

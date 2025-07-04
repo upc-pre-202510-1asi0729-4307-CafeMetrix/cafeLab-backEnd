@@ -12,10 +12,6 @@ import lombok.Getter;
 @Entity
 public class Ingredient extends AuditableAbstractAggregateRoot<Ingredient> {
 
-    /**
-     * -- GETTER --
-     * ID de la receta a la que pertenece
-     */
     @Getter
     @Column(name = "recipe_id", nullable = false)
     private Long recipeId;
@@ -24,11 +20,6 @@ public class Ingredient extends AuditableAbstractAggregateRoot<Ingredient> {
     @AttributeOverride(name = "value", column = @Column(name = "name", length = 100))
     private IngredientName name;
 
-    /**
-     * -- GETTER --
-     * Cantidad del ingrediente
-     */
-    @Getter
     @Column(nullable = false)
     private Double amount;
 
@@ -60,17 +51,8 @@ public class Ingredient extends AuditableAbstractAggregateRoot<Ingredient> {
         this.unit = command.unit();
     }
 
-    /**
-     * Nombre del ingrediente
-     */
-    public String getName() {
-        return name.value();
-    }
-
-    /**
-     * Unidad de medida
-     */
-    public String getUnit() {
-        return unit;
-    }
+    // Getters
+    public String getName() { return name.value(); }
+    public Double getAmount() { return amount; }
+    public String getUnit() { return unit; }
 } 

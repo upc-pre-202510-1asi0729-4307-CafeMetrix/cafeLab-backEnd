@@ -1,7 +1,5 @@
 package com.cafemetrix.cafelab.preparation.interfaces.rest.resources;
 
-import java.util.List;
-
 /**
  * Resource for creating a new recipe
  */
@@ -17,8 +15,7 @@ public record CreateRecipeResource(
     String steps,
     String tips,
     String cupping,
-    String grindSize,
-    List<CreateIngredientResource> ingredients
+    String grindSize
 ) {
     public CreateRecipeResource {
         if (userId == null || userId <= 0) throw new IllegalArgumentException("UserId es requerido y debe ser positivo");
@@ -30,7 +27,5 @@ public record CreateRecipeResource(
         if (steps == null || steps.isBlank()) throw new IllegalArgumentException("Steps es requerido");
         if (cupping == null || cupping.isBlank()) throw new IllegalArgumentException("Cupping es requerido");
         if (grindSize == null || grindSize.isBlank()) throw new IllegalArgumentException("GrindSize es requerido");
-        if (ingredients == null) throw new IllegalArgumentException("Ingredients es requerido");
-        if (ingredients.isEmpty()) throw new IllegalArgumentException("Debe incluir al menos un ingrediente");
     }
 } 
