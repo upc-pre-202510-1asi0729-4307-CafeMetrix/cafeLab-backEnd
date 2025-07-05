@@ -4,6 +4,7 @@ import com.cafemetrix.cafelab.preparation.interfaces.acl.PreparationContextFacad
 import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.*;
 import com.cafemetrix.cafelab.preparation.interfaces.rest.transform.*;
 import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ public class PortfoliosController {
         this.preparationContextFacade = preparationContextFacade;
     }
 
+    @Operation(summary = "Create a new portfolio")
     @PostMapping
     public ResponseEntity<?> createPortfolio(@RequestBody CreatePortfolioResource resource) {
         var portfolioId = preparationContextFacade.createPortfolio(
@@ -45,6 +47,7 @@ public class PortfoliosController {
         return new ResponseEntity<>(portfolioResource, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Get all portfolios")
     @GetMapping
     public ResponseEntity<List<PortfolioResource>> getAllPortfolios() {
         var portfolios = preparationContextFacade.getAllPortfolios();
@@ -54,6 +57,7 @@ public class PortfoliosController {
         return ResponseEntity.ok(portfolioResources);
     }
 
+    @Operation(summary = "Get a portfolio by ID")
     @GetMapping("/{portfolioId}")
     public ResponseEntity<?> getPortfolioById(@PathVariable Long portfolioId) {
         var portfolio = preparationContextFacade.getPortfolioById(portfolioId);
@@ -65,6 +69,7 @@ public class PortfoliosController {
         return ResponseEntity.ok(portfolioResource);
     }
 
+    @Operation(summary = "Get portfolios by user ID")
     @GetMapping("/users/{userId}")
     public ResponseEntity<List<PortfolioResource>> getPortfoliosByUserId(@PathVariable Long userId) {
         var portfolios = preparationContextFacade.getPortfoliosByUserId(userId);
@@ -74,6 +79,7 @@ public class PortfoliosController {
         return ResponseEntity.ok(portfolioResources);
     }
 
+    @Operation(summary = "Update a portfolio")
     @PutMapping("/{portfolioId}")
     public ResponseEntity<?> updatePortfolio(@PathVariable Long portfolioId, @RequestBody UpdatePortfolioResource resource) {
         var updatePortfolioCommand = UpdatePortfolioCommandFromResourceAssembler.toCommandFromResource(portfolioId, resource);
@@ -97,6 +103,7 @@ public class PortfoliosController {
         return ResponseEntity.ok(portfolioResource);
     }
 
+    @Operation(summary = "Delete a portfolio")
     @DeleteMapping("/{portfolioId}")
     public ResponseEntity<?> deletePortfolio(@PathVariable Long portfolioId) {
         var deleted = preparationContextFacade.deletePortfolio(portfolioId);

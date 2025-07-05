@@ -4,6 +4,7 @@ import com.cafemetrix.cafelab.preparation.interfaces.acl.PreparationContextFacad
 import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.*;
 import com.cafemetrix.cafelab.preparation.interfaces.rest.transform.*;
 import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ public class RecipesController {
         this.preparationContextFacade = preparationContextFacade;
     }
 
+    @Operation(summary = "Create a new recipe")
     @PostMapping
     public ResponseEntity<?> createRecipe(@RequestBody CreateRecipeResource resource) {
         var recipeId = preparationContextFacade.createRecipe(
@@ -49,6 +51,7 @@ public class RecipesController {
         return new ResponseEntity<>(recipeResource, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Get all recipes")
     @GetMapping
     public ResponseEntity<List<RecipeResource>> getAllRecipes() {
         var recipes = preparationContextFacade.getAllRecipes();
@@ -61,6 +64,7 @@ public class RecipesController {
         return ResponseEntity.ok(recipeResources);
     }
 
+    @Operation(summary = "Get a recipe by ID")
     @GetMapping("/{recipeId}")
     public ResponseEntity<?> getRecipeById(@PathVariable Long recipeId) {
         var recipe = preparationContextFacade.getRecipeById(recipeId);
@@ -73,6 +77,7 @@ public class RecipesController {
         return ResponseEntity.ok(recipeResource);
     }
 
+    @Operation(summary = "Update a recipe")
     @PutMapping("/{recipeId}")
     public ResponseEntity<?> updateRecipe(@PathVariable Long recipeId, @RequestBody UpdateRecipeResource resource) {
         var updateRecipeCommand = UpdateRecipeCommandFromResourceAssembler.toCommandFromResource(recipeId, resource);
@@ -100,6 +105,7 @@ public class RecipesController {
         return ResponseEntity.ok(recipeResource);
     }
 
+    @Operation(summary = "Delete a recipe")
     @DeleteMapping("/{recipeId}")
     public ResponseEntity<?> deleteRecipe(@PathVariable Long recipeId) {
         var deleted = preparationContextFacade.deleteRecipe(recipeId);

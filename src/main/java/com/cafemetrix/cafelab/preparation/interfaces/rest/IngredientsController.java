@@ -4,6 +4,7 @@ import com.cafemetrix.cafelab.preparation.interfaces.acl.PreparationContextFacad
 import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.*;
 import com.cafemetrix.cafelab.preparation.interfaces.rest.transform.UpdateIngredientCommandFromResourceAssembler;
 import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ public class IngredientsController {
         this.preparationContextFacade = preparationContextFacade;
     }
 
+    @Operation(summary = "Add an ingredient to a recipe")
     @PostMapping
     public ResponseEntity<?> addIngredientToRecipe(
             @PathVariable Long recipeId,
@@ -64,6 +66,7 @@ public class IngredientsController {
         return new ResponseEntity<>(ingredientResource, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Get all ingredients of a recipe")
     @GetMapping
     public ResponseEntity<List<IngredientResource>> getIngredientsByRecipeId(@PathVariable Long recipeId) {
         var ingredients = preparationContextFacade.getIngredientsByRecipeId(recipeId);
@@ -79,6 +82,7 @@ public class IngredientsController {
         return ResponseEntity.ok(ingredientResources);
     }
 
+    @Operation(summary = "Update an ingredient")
     @PutMapping("/{ingredientId}")
     public ResponseEntity<?> updateIngredient(
             @PathVariable Long recipeId,
@@ -119,6 +123,7 @@ public class IngredientsController {
         return ResponseEntity.ok(ingredientResource);
     }
 
+    @Operation(summary = "Delete an ingredient")
     @DeleteMapping("/{ingredientId}")
     public ResponseEntity<?> deleteIngredient(
             @PathVariable Long recipeId,
