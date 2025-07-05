@@ -1,7 +1,7 @@
 package com.cafemetrix.cafelab.profiles.domain.model.commands;
 
 /**
- * Create Profile Command
+ * Create Profile Command WITHOUT PASSWORD
  */
 public record CreateProfileCommand(String name,
                                    String email,
