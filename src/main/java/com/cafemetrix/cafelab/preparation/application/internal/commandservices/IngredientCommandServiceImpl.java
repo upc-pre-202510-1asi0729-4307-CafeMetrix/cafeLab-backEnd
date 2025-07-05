@@ -1,0 +1,28 @@
+package com.cafemetrix.cafelab.preparation.application.internal.commandservices;
+
+import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Ingredient;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.CreateIngredientCommand;
+import com.cafemetrix.cafelab.preparation.domain.services.IngredientCommandService;
+import com.cafemetrix.cafelab.preparation.infrastructure.persistence.jpa.repositories.IngredientRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class IngredientCommandServiceImpl implements IngredientCommandService {
+    private final IngredientRepository ingredientRepository;
+
+    public IngredientCommandServiceImpl(IngredientRepository ingredientRepository) {
+        this.ingredientRepository = ingredientRepository;
+    }
+
+    @Override
+    public Optional<Ingredient> handle(CreateIngredientCommand command) {
+        try {
+            var ingredient = new Ingredient(command);
+            return Optional.of(ingredientRepository.save(ingredient));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+} 
