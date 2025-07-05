@@ -2,6 +2,7 @@ package com.cafemetrix.cafelab.preparation.interfaces.rest;
 
 import com.cafemetrix.cafelab.preparation.interfaces.acl.PreparationContextFacade;
 import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.*;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.transform.UpdateIngredientCommandFromResourceAssembler;
 import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -76,5 +77,59 @@ public class IngredientsController {
             ))
             .collect(Collectors.toList());
         return ResponseEntity.ok(ingredientResources);
+    }
+
+    @PutMapping("/{ingredientId}")
+    public ResponseEntity<?> updateIngredient(
+            @PathVariable Long recipeId,
+            @PathVariable Long ingredientId,
+            @RequestBody UpdateIngredientResource resource) {
+        
+        var updateIngredientCommand = UpdateIngredientCommandFromResourceAssembler.toCommandFromResource(ingredientId, resource);
+        var updatedIngredientId = preparationContextFacade.updateIngredient(
+            updateIngredientCommand.ingredientId(),
+            updateIngredientCommand.name(),
+            updateIngredientCommand.amount(),
+            updateIngredientCommand.unit()
+        );
+
+        if (updatedIngredientId == 0L) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new MessageResource("No se pudo actualizar el ingrediente"));
+        }
+
+        var ingredients = preparationContextFacade.getIngredientsByRecipeId(recipeId);
+        var ingredient = ingredients.stream()
+            .filter(i -> i.getId().equals(updatedIngredientId))
+            .findFirst();
+
+        if (ingredient.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new MessageResource("No se pudo obtener el ingrediente actualizado"));
+        }
+
+        var ingredientResource = new IngredientResource(
+            ingredient.get().getId(),
+            ingredient.get().getRecipeId(),
+            ingredient.get().getName(),
+            ingredient.get().getAmount(),
+            ingredient.get().getUnit()
+        );
+
+        return ResponseEntity.ok(ingredientResource);
+    }
+
+    @DeleteMapping("/{ingredientId}")
+    public ResponseEntity<?> deleteIngredient(
+            @PathVariable Long recipeId,
+            @PathVariable Long ingredientId) {
+        
+        var deleted = preparationContextFacade.deleteIngredient(ingredientId);
+        if (deleted) {
+            return ResponseEntity.ok(new MessageResource("Ingrediente eliminado exitosamente"));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new MessageResource("No se pudo eliminar el ingrediente"));
+        }
     }
 } 

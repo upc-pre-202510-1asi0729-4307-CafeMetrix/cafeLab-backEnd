@@ -1,6 +1,7 @@
 package com.cafemetrix.cafelab.preparation.domain.model.aggregates;
 
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreateIngredientCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateIngredientCommand;
 import com.cafemetrix.cafelab.preparation.domain.model.valueobjects.IngredientName;
 import com.cafemetrix.cafelab.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
@@ -49,6 +50,16 @@ public class Ingredient extends AuditableAbstractAggregateRoot<Ingredient> {
         this.name = new IngredientName(command.name());
         this.amount = command.amount();
         this.unit = command.unit();
+    }
+
+    /**
+     * Método para actualizar el ingrediente
+     */
+    public Ingredient update(UpdateIngredientCommand command) {
+        this.name = new IngredientName(command.name());
+        this.amount = command.amount();
+        this.unit = command.unit();
+        return this;
     }
 
     // Getters

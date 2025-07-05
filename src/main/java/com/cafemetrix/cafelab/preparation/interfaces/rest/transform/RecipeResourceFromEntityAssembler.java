@@ -29,6 +29,7 @@ public class RecipeResourceFromEntityAssembler {
             entity.getName(),
             entity.getImageUrl(),
             entity.getExtractionMethod().getValue(),
+            entity.getExtractionCategory() != null ? entity.getExtractionCategory().getValue() : "coffee",
             entity.getRatio(),
             entity.getCuppingSessionId(),
             entity.getPortfolioId(),

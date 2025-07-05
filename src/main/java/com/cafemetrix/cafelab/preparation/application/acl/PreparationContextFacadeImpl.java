@@ -4,8 +4,14 @@ import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Ingredient;
 import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Portfolio;
 import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Recipe;
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreateIngredientCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateIngredientCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.DeleteIngredientCommand;
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreatePortfolioCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdatePortfolioCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.DeletePortfolioCommand;
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreateRecipeCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateRecipeCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.DeleteRecipeCommand;
 import com.cafemetrix.cafelab.preparation.domain.model.queries.*;
 import com.cafemetrix.cafelab.preparation.domain.services.*;
 import com.cafemetrix.cafelab.preparation.interfaces.acl.PreparationContextFacade;
@@ -40,12 +46,28 @@ public class PreparationContextFacadeImpl implements PreparationContextFacade {
 
     @Override
     public Long createRecipe(Long userId, String name, String imageUrl, String extractionMethod,
-                           String ratio, Long cuppingSessionId, Long portfolioId, Integer preparationTime,
-                           String steps, String tips, String cupping, String grindSize) {
+                           String extractionCategory, String ratio, Long cuppingSessionId, Long portfolioId, 
+                           Integer preparationTime, String steps, String tips, String cupping, String grindSize) {
         var createRecipeCommand = new CreateRecipeCommand(userId, name, imageUrl, extractionMethod,
-                ratio, cuppingSessionId, portfolioId, preparationTime, steps, tips, cupping, grindSize);
+                extractionCategory, ratio, cuppingSessionId, portfolioId, preparationTime, steps, tips, cupping, grindSize);
         var recipe = recipeCommandService.handle(createRecipeCommand);
         return recipe.map(Recipe::getId).orElse(0L);
+    }
+
+    @Override
+    public Long updateRecipe(Long recipeId, String name, String imageUrl, String extractionMethod,
+                           String extractionCategory, String ratio, Long cuppingSessionId, Long portfolioId, 
+                           Integer preparationTime, String steps, String tips, String cupping, String grindSize) {
+        var updateRecipeCommand = new UpdateRecipeCommand(recipeId, name, imageUrl, extractionMethod,
+                extractionCategory, ratio, cuppingSessionId, portfolioId, preparationTime, steps, tips, cupping, grindSize);
+        var recipe = recipeCommandService.handle(updateRecipeCommand);
+        return recipe.map(Recipe::getId).orElse(0L);
+    }
+
+    @Override
+    public boolean deleteRecipe(Long recipeId) {
+        var deleteRecipeCommand = new DeleteRecipeCommand(recipeId);
+        return recipeCommandService.handle(deleteRecipeCommand);
     }
 
     @Override
@@ -66,6 +88,19 @@ public class PreparationContextFacadeImpl implements PreparationContextFacade {
     }
 
     @Override
+    public Long updateIngredient(Long ingredientId, String name, Double amount, String unit) {
+        var updateIngredientCommand = new UpdateIngredientCommand(ingredientId, name, amount, unit);
+        var ingredient = ingredientCommandService.handle(updateIngredientCommand);
+        return ingredient.map(Ingredient::getId).orElse(0L);
+    }
+
+    @Override
+    public boolean deleteIngredient(Long ingredientId) {
+        var deleteIngredientCommand = new DeleteIngredientCommand(ingredientId);
+        return ingredientCommandService.handle(deleteIngredientCommand);
+    }
+
+    @Override
     public List<Ingredient> getIngredientsByRecipeId(Long recipeId) {
         return ingredientQueryService.handle(new GetIngredientsByRecipeIdQuery(recipeId));
     }
@@ -74,6 +109,19 @@ public class PreparationContextFacadeImpl implements PreparationContextFacade {
     public Long createPortfolio(Long userId, String name) {
         var createPortfolioCommand = new CreatePortfolioCommand(userId, name);
         return portfolioCommandService.handle(createPortfolioCommand);
+    }
+
+    @Override
+    public Long updatePortfolio(Long portfolioId, String name) {
+        var updatePortfolioCommand = new UpdatePortfolioCommand(portfolioId, name);
+        var portfolio = portfolioCommandService.handle(updatePortfolioCommand);
+        return portfolio.map(Portfolio::getId).orElse(0L);
+    }
+
+    @Override
+    public boolean deletePortfolio(Long portfolioId) {
+        var deletePortfolioCommand = new DeletePortfolioCommand(portfolioId);
+        return portfolioCommandService.handle(deletePortfolioCommand);
     }
 
     @Override

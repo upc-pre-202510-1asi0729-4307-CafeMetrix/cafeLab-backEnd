@@ -1,6 +1,7 @@
 package com.cafemetrix.cafelab.preparation.domain.model.aggregates;
 
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreatePortfolioCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdatePortfolioCommand;
 import com.cafemetrix.cafelab.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,6 +30,14 @@ public class Portfolio extends AuditableAbstractAggregateRoot<Portfolio> {
     public Portfolio(CreatePortfolioCommand command) {
         this.userId = command.userId();
         this.name = command.name();
+    }
+
+    /**
+     * Método para actualizar el portfolio
+     */
+    public Portfolio update(UpdatePortfolioCommand command) {
+        this.name = command.name();
+        return this;
     }
 
     public String getName() {

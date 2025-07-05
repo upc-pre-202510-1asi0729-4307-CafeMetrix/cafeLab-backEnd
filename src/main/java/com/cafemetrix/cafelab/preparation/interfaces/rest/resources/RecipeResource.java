@@ -11,6 +11,7 @@ public record RecipeResource(
     String name,
     String imageUrl,
     String extractionMethod,
+    String extractionCategory,
     String ratio,
     Long cuppingSessionId,
     Long portfolioId,

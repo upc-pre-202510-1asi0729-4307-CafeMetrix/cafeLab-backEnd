@@ -73,4 +73,38 @@ public class PortfoliosController {
             .collect(Collectors.toList());
         return ResponseEntity.ok(portfolioResources);
     }
+
+    @PutMapping("/{portfolioId}")
+    public ResponseEntity<?> updatePortfolio(@PathVariable Long portfolioId, @RequestBody UpdatePortfolioResource resource) {
+        var updatePortfolioCommand = UpdatePortfolioCommandFromResourceAssembler.toCommandFromResource(portfolioId, resource);
+        var updatedPortfolioId = preparationContextFacade.updatePortfolio(
+            updatePortfolioCommand.portfolioId(),
+            updatePortfolioCommand.name()
+        );
+
+        if (updatedPortfolioId == 0L) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new MessageResource("No se pudo actualizar el portafolio"));
+        }
+
+        var portfolio = preparationContextFacade.getPortfolioById(updatedPortfolioId);
+        if (portfolio.isEmpty()) {
+            return ResponseEntity.badRequest()
+                .body(new MessageResource("No se pudo obtener el portafolio actualizado"));
+        }
+
+        var portfolioResource = PortfolioResourceFromEntityAssembler.toResourceFromEntity(portfolio.get());
+        return ResponseEntity.ok(portfolioResource);
+    }
+
+    @DeleteMapping("/{portfolioId}")
+    public ResponseEntity<?> deletePortfolio(@PathVariable Long portfolioId) {
+        var deleted = preparationContextFacade.deletePortfolio(portfolioId);
+        if (deleted) {
+            return ResponseEntity.ok(new MessageResource("Portafolio eliminado exitosamente"));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new MessageResource("No se pudo eliminar el portafolio"));
+        }
+    }
 } 

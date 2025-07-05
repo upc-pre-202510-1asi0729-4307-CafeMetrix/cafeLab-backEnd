@@ -27,7 +27,7 @@ public class RecipesController {
     public ResponseEntity<?> createRecipe(@RequestBody CreateRecipeResource resource) {
         var recipeId = preparationContextFacade.createRecipe(
             resource.userId(), resource.name(), resource.imageUrl(),
-            resource.extractionMethod(), resource.ratio(),
+            resource.extractionMethod(), resource.extractionCategory(), resource.ratio(),
             resource.cuppingSessionId(), resource.portfolioId(),
             resource.preparationTime(), resource.steps(),
             resource.tips(), resource.cupping(), resource.grindSize()
@@ -71,5 +71,43 @@ public class RecipesController {
         var ingredients = preparationContextFacade.getIngredientsByRecipeId(recipeId);
         var recipeResource = RecipeResourceFromEntityAssembler.toResourceFromEntity(recipe.get(), ingredients);
         return ResponseEntity.ok(recipeResource);
+    }
+
+    @PutMapping("/{recipeId}")
+    public ResponseEntity<?> updateRecipe(@PathVariable Long recipeId, @RequestBody UpdateRecipeResource resource) {
+        var updateRecipeCommand = UpdateRecipeCommandFromResourceAssembler.toCommandFromResource(recipeId, resource);
+        var updatedRecipeId = preparationContextFacade.updateRecipe(
+            updateRecipeCommand.recipeId(), updateRecipeCommand.name(), updateRecipeCommand.imageUrl(),
+            updateRecipeCommand.extractionMethod(), updateRecipeCommand.extractionCategory(), updateRecipeCommand.ratio(),
+            updateRecipeCommand.cuppingSessionId(), updateRecipeCommand.portfolioId(),
+            updateRecipeCommand.preparationTime(), updateRecipeCommand.steps(),
+            updateRecipeCommand.tips(), updateRecipeCommand.cupping(), updateRecipeCommand.grindSize()
+        );
+
+        if (updatedRecipeId == 0L) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new MessageResource("No se pudo actualizar la receta"));
+        }
+
+        var recipe = preparationContextFacade.getRecipeById(updatedRecipeId);
+        if (recipe.isEmpty()) {
+            return ResponseEntity.badRequest()
+                .body(new MessageResource("No se pudo obtener la receta actualizada"));
+        }
+
+        var ingredients = preparationContextFacade.getIngredientsByRecipeId(updatedRecipeId);
+        var recipeResource = RecipeResourceFromEntityAssembler.toResourceFromEntity(recipe.get(), ingredients);
+        return ResponseEntity.ok(recipeResource);
+    }
+
+    @DeleteMapping("/{recipeId}")
+    public ResponseEntity<?> deleteRecipe(@PathVariable Long recipeId) {
+        var deleted = preparationContextFacade.deleteRecipe(recipeId);
+        if (deleted) {
+            return ResponseEntity.ok(new MessageResource("Receta eliminada exitosamente"));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new MessageResource("No se pudo eliminar la receta"));
+        }
     }
 } 
