@@ -12,7 +12,7 @@ public record CuppingSessionResource(
         String variety,
         String processingMethod,
         Boolean favorite,
-        String roastProfile,
+        Long roastProfile,
         Long lotId,
         Long userId,
         LocalDateTime date

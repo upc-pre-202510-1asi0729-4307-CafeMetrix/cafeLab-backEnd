@@ -43,7 +43,7 @@ public class CuppingSession extends AuditableAbstractAggregateRoot<CuppingSessio
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "roast_profile"))
-    private ProfileName roastProfile;
+    private RoastProfileId roastProfile;
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "lot_id"))
@@ -75,7 +75,7 @@ public class CuppingSession extends AuditableAbstractAggregateRoot<CuppingSessio
         this.processingMethod = new ProcessingMethod(command.processingMethod().value());
         this.favorite = command.favorite();
 
-        this.roastProfile = new ProfileName(command.roastProfile().value());
+        this.roastProfile = new RoastProfileId(command.roastProfile().value());
         this.lotId = new LotId(command.lotId().value());
         this.userId = new UserId(command.userId().value());
         this.date = command.date();

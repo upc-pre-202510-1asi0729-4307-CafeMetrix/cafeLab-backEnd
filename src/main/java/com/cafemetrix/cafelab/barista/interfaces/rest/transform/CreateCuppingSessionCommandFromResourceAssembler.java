@@ -2,6 +2,7 @@ package com.cafemetrix.cafelab.barista.interfaces.rest.transform;
 
 import com.cafemetrix.cafelab.barista.domain.model.commands.CreateCuppingSessionCommand;
 import com.cafemetrix.cafelab.barista.interfaces.rest.resources.CreateCuppingSessionResource;
+import com.cafemetrix.cafelab.coffeeproduction.domain.model.valueobjects.UserId;
 import com.cafemetrix.cafelab.coffees.domain.model.commands.CreateCoffeeCommand;
 import com.cafemetrix.cafelab.coffees.interfaces.rest.resources.CreateCoffeeResource;
 
@@ -14,7 +15,7 @@ public class CreateCuppingSessionCommandFromResourceAssembler {
      * @param resource The {@link CreateCuppingSessionResource} resource to convert.
      * @return The {@link CreateCuppingSessionCommand} command.
      */
-    public static CreateCuppingSessionCommand toCommandFromResource(CreateCuppingSessionResource resource) {
+    public static CreateCuppingSessionCommand toCommandFromResource(CreateCuppingSessionResource resource, UserId userId) {
         return new CreateCuppingSessionCommand(
                 resource.cuppingSessionName(),
                 resource.origin(),
@@ -23,7 +24,7 @@ public class CreateCuppingSessionCommandFromResourceAssembler {
                 resource.favorite(),
                 resource.roastProfile(),
                 resource.lotId(),
-                resource.userId(),
+                userId,
                 resource.date()
         );
     }

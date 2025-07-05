@@ -15,9 +15,9 @@ public record CreateCuppingSessionResource(
         CoffeeVariety variety,
         ProcessingMethod processingMethod,
         Boolean favorite,
-        ProfileName roastProfile,
+        RoastProfileId roastProfile,
         LotId lotId,
-        UserId userId,
+        //UserId userId,
         LocalDateTime date
 ) {
     /**
@@ -34,7 +34,7 @@ public record CreateCuppingSessionResource(
         if (favorite == null) throw new IllegalArgumentException("Favorite is required.");
         if (roastProfile == null) throw new IllegalArgumentException("Roast profile is required.");
         if (lotId == null) throw new IllegalArgumentException("Lot ID is required.");
-        if (userId == null) throw new IllegalArgumentException("User ID is required.");
+        //if (userId == null) throw new IllegalArgumentException("User ID is required.");
         if (date == null) throw new IllegalArgumentException("Date is required.");
     }
 }

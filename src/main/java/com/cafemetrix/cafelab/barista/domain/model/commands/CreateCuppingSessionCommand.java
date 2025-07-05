@@ -12,7 +12,7 @@ public record CreateCuppingSessionCommand(
         CoffeeVariety variety,
         ProcessingMethod processingMethod,
         Boolean favorite,
-        ProfileName roastProfile,
+        RoastProfileId roastProfile,
         LotId lotId,
         UserId userId,
         LocalDateTime date
