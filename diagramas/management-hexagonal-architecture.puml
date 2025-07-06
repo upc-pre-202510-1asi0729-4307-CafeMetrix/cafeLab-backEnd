@@ -1,0 +1,135 @@
+@startuml Management Hexagonal Architecture
+
+!define RECTANGLE class
+
+package "Management Bounded Context" {
+    
+    ' ===== DOMAIN CORE =====
+    package "Domain Core" {
+        class InventoryEntry {
+            + userId: Long
+            + finalProduct: FinalProduct
+            + quantity: Double
+            + unit: String
+            + entryDate: LocalDateTime
+            + notes: String
+        }
+        
+        class FinalProduct {
+            + name: String
+            + description: String
+            + category: String
+        }
+        
+        interface InventoryEntryCommandService {
+            + create(command: CreateInventoryEntryCommand): InventoryEntry
+            + update(command: UpdateInventoryEntryCommand): InventoryEntry
+            + delete(command: DeleteInventoryEntryCommand): void
+        }
+        
+        interface InventoryEntryQueryService {
+            + findById(id: Long): Optional<InventoryEntry>
+            + findByUserId(userId: Long): List<InventoryEntry>
+            + findAll(): List<InventoryEntry>
+        }
+    }
+    
+    ' ===== APPLICATION SERVICES =====
+    package "Application Services" {
+        class InventoryEntryCommandServiceImpl
+        class InventoryEntryQueryServiceImpl
+        class ManagementContextFacade
+    }
+    
+    ' ===== INFRASTRUCTURE ADAPTERS =====
+    package "Infrastructure Adapters" {
+        package "Persistence" {
+            interface InventoryEntryRepository {
+                + findByUserId(userId: Long): List<InventoryEntry>
+                + save(entity: InventoryEntry): InventoryEntry
+                + findById(id: Long): Optional<InventoryEntry>
+                + deleteById(id: Long): void
+            }
+        }
+    }
+    
+    ' ===== INTERFACE ADAPTERS =====
+    package "Interface Adapters" {
+        package "REST Controllers" {
+            class InventoryEntriesController {
+                + createInventoryEntry(resource: CreateInventoryEntryResource): ResponseEntity<InventoryEntryResource>
+                + getAllInventoryEntries(): ResponseEntity<List<InventoryEntryResource>>
+                + getInventoryEntryById(id: Long): ResponseEntity<InventoryEntryResource>
+                + updateInventoryEntry(id: Long, resource: UpdateInventoryEntryResource): ResponseEntity<InventoryEntryResource>
+                + deleteInventoryEntry(id: Long): ResponseEntity<Void>
+                + getInventoryEntriesByUserId(userId: Long): ResponseEntity<List<InventoryEntryResource>>
+            }
+        }
+        
+        package "DTOs" {
+            class InventoryEntryResource {
+                + id: Long
+                + userId: Long
+                + finalProduct: FinalProduct
+                + quantity: Double
+                + unit: String
+                + entryDate: LocalDateTime
+                + notes: String
+            }
+            
+            class CreateInventoryEntryResource
+            class UpdateInventoryEntryResource
+        }
+    }
+}
+
+' ===== RELATIONSHIPS =====
+
+' Domain Core Relationships
+InventoryEntryCommandService --> InventoryEntry
+InventoryEntryQueryService --> InventoryEntry
+InventoryEntry --> FinalProduct
+
+' Application Services Relationships
+InventoryEntryCommandServiceImpl ..|> InventoryEntryCommandService
+InventoryEntryQueryServiceImpl ..|> InventoryEntryQueryService
+
+ManagementContextFacade --> InventoryEntryCommandService
+ManagementContextFacade --> InventoryEntryQueryService
+
+' Infrastructure Adapters Relationships
+InventoryEntryCommandServiceImpl --> InventoryEntryRepository
+InventoryEntryQueryServiceImpl --> InventoryEntryRepository
+
+' Interface Adapters Relationships
+InventoryEntriesController --> ManagementContextFacade
+
+InventoryEntriesController --> InventoryEntryResource
+InventoryEntriesController --> CreateInventoryEntryResource
+InventoryEntriesController --> UpdateInventoryEntryResource
+
+' ===== STYLING =====
+skinparam class {
+    BackgroundColor<<Domain>> LightBlue
+    BackgroundColor<<Application>> LightGreen
+    BackgroundColor<<Infrastructure>> LightYellow
+    BackgroundColor<<Interface>> LightCyan
+}
+
+InventoryEntry <<Domain>>
+FinalProduct <<Domain>>
+InventoryEntryCommandService <<Domain>>
+InventoryEntryQueryService <<Domain>>
+
+InventoryEntryCommandServiceImpl <<Application>>
+InventoryEntryQueryServiceImpl <<Application>>
+ManagementContextFacade <<Application>>
+
+InventoryEntryRepository <<Infrastructure>>
+
+InventoryEntriesController <<Interface>>
+InventoryEntryResource <<Interface>>
+CreateInventoryEntryResource <<Interface>>
+UpdateInventoryEntryResource <<Interface>>
+
+@enduml 

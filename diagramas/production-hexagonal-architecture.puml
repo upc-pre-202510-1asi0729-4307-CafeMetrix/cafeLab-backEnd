@@ -1,0 +1,161 @@
+@startuml Production Hexagonal Architecture
+
+!define RECTANGLE class
+
+package "Production Bounded Context" {
+    
+    ' ===== DOMAIN CORE =====
+    package "Domain Core" {
+        class CoffeeLot {
+            + userId: Long
+            + supplierId: Long
+            + lotName: String
+            + coffeeType: String
+            + processingMethod: String
+            + altitude: Integer
+            + weight: Double
+            + origin: String
+            + status: String
+            + certifications: List<String>
+        }
+        
+        class RoastProfile {
+            + userId: Long
+            + coffeeLotId: Long
+            + profileName: String
+            + roastType: String
+            + temperature: Double
+            + duration: Integer
+        }
+        
+        class Supplier {
+            + userId: Long
+            + supplierName: String
+            + email: String
+            + location: String
+        }
+        
+        interface CoffeeLotCommandService
+        interface CoffeeLotQueryService
+        interface RoastProfileCommandService
+        interface RoastProfileQueryService
+        interface SupplierCommandService
+        interface SupplierQueryService
+    }
+    
+    ' ===== APPLICATION SERVICES =====
+    package "Application Services" {
+        class CoffeeLotCommandServiceImpl
+        class CoffeeLotQueryServiceImpl
+        class RoastProfileCommandServiceImpl
+        class RoastProfileQueryServiceImpl
+        class SupplierCommandServiceImpl
+        class SupplierQueryServiceImpl
+        class CoffeeproductionContextFacade
+    }
+    
+    ' ===== INFRASTRUCTURE ADAPTERS =====
+    package "Infrastructure Adapters" {
+        package "Persistence" {
+            interface CoffeeLotRepository
+            interface RoastProfileRepository
+            interface SupplierRepository
+        }
+    }
+    
+    ' ===== INTERFACE ADAPTERS =====
+    package "Interface Adapters" {
+        package "REST Controllers" {
+            class CoffeeLotsController
+            class RoastProfilesController
+            class SuppliersController
+        }
+        
+        package "DTOs" {
+            class CoffeeLotResource
+            class RoastProfileResource
+            class SupplierResource
+        }
+    }
+}
+
+' ===== RELATIONSHIPS =====
+
+' Domain Core Relationships
+CoffeeLotCommandService --> CoffeeLot
+CoffeeLotQueryService --> CoffeeLot
+RoastProfileCommandService --> RoastProfile
+RoastProfileQueryService --> RoastProfile
+SupplierCommandService --> Supplier
+SupplierQueryService --> Supplier
+
+' Application Services Relationships
+CoffeeLotCommandServiceImpl ..|> CoffeeLotCommandService
+CoffeeLotQueryServiceImpl ..|> CoffeeLotQueryService
+RoastProfileCommandServiceImpl ..|> RoastProfileCommandService
+RoastProfileQueryServiceImpl ..|> RoastProfileQueryService
+SupplierCommandServiceImpl ..|> SupplierCommandService
+SupplierQueryServiceImpl ..|> SupplierQueryService
+
+CoffeeproductionContextFacade --> CoffeeLotCommandService
+CoffeeproductionContextFacade --> CoffeeLotQueryService
+CoffeeproductionContextFacade --> RoastProfileCommandService
+CoffeeproductionContextFacade --> RoastProfileQueryService
+CoffeeproductionContextFacade --> SupplierCommandService
+CoffeeproductionContextFacade --> SupplierQueryService
+
+' Infrastructure Adapters Relationships
+CoffeeLotCommandServiceImpl --> CoffeeLotRepository
+CoffeeLotQueryServiceImpl --> CoffeeLotRepository
+RoastProfileCommandServiceImpl --> RoastProfileRepository
+RoastProfileQueryServiceImpl --> RoastProfileRepository
+SupplierCommandServiceImpl --> SupplierRepository
+SupplierQueryServiceImpl --> SupplierRepository
+
+' Interface Adapters Relationships
+CoffeeLotsController --> CoffeeproductionContextFacade
+RoastProfilesController --> CoffeeproductionContextFacade
+SuppliersController --> CoffeeproductionContextFacade
+
+CoffeeLotsController --> CoffeeLotResource
+RoastProfilesController --> RoastProfileResource
+SuppliersController --> SupplierResource
+
+' ===== STYLING =====
+skinparam class {
+    BackgroundColor<<Domain>> LightBlue
+    BackgroundColor<<Application>> LightGreen
+    BackgroundColor<<Infrastructure>> LightYellow
+    BackgroundColor<<Interface>> LightCyan
+}
+
+CoffeeLot <<Domain>>
+RoastProfile <<Domain>>
+Supplier <<Domain>>
+CoffeeLotCommandService <<Domain>>
+CoffeeLotQueryService <<Domain>>
+RoastProfileCommandService <<Domain>>
+RoastProfileQueryService <<Domain>>
+SupplierCommandService <<Domain>>
+SupplierQueryService <<Domain>>
+
+CoffeeLotCommandServiceImpl <<Application>>
+CoffeeLotQueryServiceImpl <<Application>>
+RoastProfileCommandServiceImpl <<Application>>
+RoastProfileQueryServiceImpl <<Application>>
+SupplierCommandServiceImpl <<Application>>
+SupplierQueryServiceImpl <<Application>>
+CoffeeproductionContextFacade <<Application>>
+
+CoffeeLotRepository <<Infrastructure>>
+RoastProfileRepository <<Infrastructure>>
+SupplierRepository <<Infrastructure>>
+
+CoffeeLotsController <<Interface>>
+RoastProfilesController <<Interface>>
+SuppliersController <<Interface>>
+CoffeeLotResource <<Interface>>
+RoastProfileResource <<Interface>>
+SupplierResource <<Interface>>
+
+@enduml 

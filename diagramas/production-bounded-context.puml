@@ -1,0 +1,272 @@
+@startuml Production Bounded Context
+
+!define RECTANGLE class
+
+package "Production Bounded Context" {
+    
+    ' ===== DOMAIN LAYER =====
+    package "Domain Layer" {
+        package "Aggregates" {
+            class CoffeeLot {
+                + userId: Long
+                + supplierId: Long
+                + lotName: CoffeeLotName
+                + coffeeType: CoffeeType
+                + processingMethod: ProcessingMethod
+                + altitude: Integer
+                + weight: Double
+                + origin: Origin
+                + status: CoffeeLotStatus
+                + certifications: List<String>
+                + update(command: UpdateCoffeeLotCommand): CoffeeLot
+            }
+            
+            class RoastProfile {
+                + userId: Long
+                + coffeeLotId: Long
+                + profileName: RoastProfileName
+                + roastType: RoastType
+                + temperature: Temperature
+                + duration: Duration
+                + update(command: UpdateRoastProfileCommand): RoastProfile
+            }
+            
+            class Supplier {
+                + userId: Long
+                + supplierName: SupplierName
+                + email: SupplierEmail
+                + location: SupplierLocation
+                + update(command: UpdateSupplierCommand): Supplier
+            }
+        }
+        
+        package "Value Objects" {
+            class CoffeeLotName
+            class CoffeeType
+            class ProcessingMethod
+            class Origin
+            class CoffeeLotStatus
+            class RoastProfileName
+            class RoastType
+            class Temperature
+            class Duration
+            class SupplierName
+            class SupplierEmail
+            class SupplierLocation
+        }
+        
+        package "Commands" {
+            class CreateCoffeeLotCommand
+            class UpdateCoffeeLotCommand
+            class DeleteCoffeeLotCommand
+            class CreateRoastProfileCommand
+            class UpdateRoastProfileCommand
+            class DeleteRoastProfileCommand
+            class CreateSupplierCommand
+            class UpdateSupplierCommand
+            class DeleteSupplierCommand
+        }
+        
+        package "Services" {
+            interface CoffeeLotCommandService
+            interface CoffeeLotQueryService
+            interface RoastProfileCommandService
+            interface RoastProfileQueryService
+            interface SupplierCommandService
+            interface SupplierQueryService
+        }
+    }
+    
+    ' ===== APPLICATION LAYER =====
+    package "Application Layer" {
+        package "Internal" {
+            class CoffeeLotCommandServiceImpl
+            class CoffeeLotQueryServiceImpl
+            class RoastProfileCommandServiceImpl
+            class RoastProfileQueryServiceImpl
+            class SupplierCommandServiceImpl
+            class SupplierQueryServiceImpl
+        }
+        
+        package "ACL" {
+            class CoffeeproductionContextFacade
+        }
+    }
+    
+    ' ===== INFRASTRUCTURE LAYER =====
+    package "Infrastructure Layer" {
+        package "Persistence" {
+            package "JPA" {
+                package "Repositories" {
+                    interface CoffeeLotRepository
+                    interface RoastProfileRepository
+                    interface SupplierRepository
+                }
+            }
+        }
+    }
+    
+    ' ===== INTERFACES LAYER =====
+    package "Interfaces Layer" {
+        package "REST" {
+            class CoffeeLotsController
+            class RoastProfilesController
+            class SuppliersController
+        }
+        
+        package "Resources" {
+            class CoffeeLotResource
+            class CreateCoffeeLotResource
+            class UpdateCoffeeLotResource
+            class RoastProfileResource
+            class CreateRoastProfileResource
+            class UpdateRoastProfileResource
+            class SupplierResource
+            class CreateSupplierResource
+            class UpdateSupplierResource
+        }
+        
+        package "Transform" {
+            class UpdateCoffeeLotCommandFromResourceAssembler
+            class UpdateRoastProfileCommandFromResourceAssembler
+            class UpdateSupplierCommandFromResourceAssembler
+        }
+    }
+}
+
+' ===== RELATIONSHIPS =====
+
+' Domain Layer Relationships
+CoffeeLot --> CoffeeLotName
+CoffeeLot --> CoffeeType
+CoffeeLot --> ProcessingMethod
+CoffeeLot --> Origin
+CoffeeLot --> CoffeeLotStatus
+CoffeeLot --> UpdateCoffeeLotCommand
+
+RoastProfile --> RoastProfileName
+RoastProfile --> RoastType
+RoastProfile --> Temperature
+RoastProfile --> Duration
+RoastProfile --> UpdateRoastProfileCommand
+
+Supplier --> SupplierName
+Supplier --> SupplierEmail
+Supplier --> SupplierLocation
+Supplier --> UpdateSupplierCommand
+
+' Application Layer Relationships
+CoffeeLotCommandServiceImpl ..|> CoffeeLotCommandService
+CoffeeLotQueryServiceImpl ..|> CoffeeLotQueryService
+RoastProfileCommandServiceImpl ..|> RoastProfileCommandService
+RoastProfileQueryServiceImpl ..|> RoastProfileQueryService
+SupplierCommandServiceImpl ..|> SupplierCommandService
+SupplierQueryServiceImpl ..|> SupplierQueryService
+
+CoffeeproductionContextFacade --> CoffeeLotCommandService
+CoffeeproductionContextFacade --> CoffeeLotQueryService
+CoffeeproductionContextFacade --> RoastProfileCommandService
+CoffeeproductionContextFacade --> RoastProfileQueryService
+CoffeeproductionContextFacade --> SupplierCommandService
+CoffeeproductionContextFacade --> SupplierQueryService
+
+' Infrastructure Layer Relationships
+CoffeeLotCommandServiceImpl --> CoffeeLotRepository
+CoffeeLotQueryServiceImpl --> CoffeeLotRepository
+RoastProfileCommandServiceImpl --> RoastProfileRepository
+RoastProfileQueryServiceImpl --> RoastProfileRepository
+SupplierCommandServiceImpl --> SupplierRepository
+SupplierQueryServiceImpl --> SupplierRepository
+
+' Interfaces Layer Relationships
+CoffeeLotsController --> CoffeeproductionContextFacade
+RoastProfilesController --> CoffeeproductionContextFacade
+SuppliersController --> CoffeeproductionContextFacade
+
+CoffeeLotsController --> CoffeeLotResource
+CoffeeLotsController --> CreateCoffeeLotResource
+CoffeeLotsController --> UpdateCoffeeLotResource
+RoastProfilesController --> RoastProfileResource
+RoastProfilesController --> CreateRoastProfileResource
+RoastProfilesController --> UpdateRoastProfileResource
+SuppliersController --> SupplierResource
+SuppliersController --> CreateSupplierResource
+SuppliersController --> UpdateSupplierResource
+
+UpdateCoffeeLotCommandFromResourceAssembler --> UpdateCoffeeLotCommand
+UpdateCoffeeLotCommandFromResourceAssembler --> UpdateCoffeeLotResource
+UpdateRoastProfileCommandFromResourceAssembler --> UpdateRoastProfileCommand
+UpdateRoastProfileCommandFromResourceAssembler --> UpdateRoastProfileResource
+UpdateSupplierCommandFromResourceAssembler --> UpdateSupplierCommand
+UpdateSupplierCommandFromResourceAssembler --> UpdateSupplierResource
+
+' ===== STYLING =====
+skinparam class {
+    BackgroundColor<<Domain>> LightBlue
+    BackgroundColor<<Application>> LightGreen
+    BackgroundColor<<Infrastructure>> LightYellow
+    BackgroundColor<<Interface>> LightCyan
+}
+
+CoffeeLot <<Domain>>
+RoastProfile <<Domain>>
+Supplier <<Domain>>
+CoffeeLotName <<Domain>>
+CoffeeType <<Domain>>
+ProcessingMethod <<Domain>>
+Origin <<Domain>>
+CoffeeLotStatus <<Domain>>
+RoastProfileName <<Domain>>
+RoastType <<Domain>>
+Temperature <<Domain>>
+Duration <<Domain>>
+SupplierName <<Domain>>
+SupplierEmail <<Domain>>
+SupplierLocation <<Domain>>
+
+CreateCoffeeLotCommand <<Domain>>
+UpdateCoffeeLotCommand <<Domain>>
+DeleteCoffeeLotCommand <<Domain>>
+CreateRoastProfileCommand <<Domain>>
+UpdateRoastProfileCommand <<Domain>>
+DeleteRoastProfileCommand <<Domain>>
+CreateSupplierCommand <<Domain>>
+UpdateSupplierCommand <<Domain>>
+DeleteSupplierCommand <<Domain>>
+
+CoffeeLotCommandService <<Domain>>
+CoffeeLotQueryService <<Domain>>
+RoastProfileCommandService <<Domain>>
+RoastProfileQueryService <<Domain>>
+SupplierCommandService <<Domain>>
+SupplierQueryService <<Domain>>
+
+CoffeeLotCommandServiceImpl <<Application>>
+CoffeeLotQueryServiceImpl <<Application>>
+RoastProfileCommandServiceImpl <<Application>>
+RoastProfileQueryServiceImpl <<Application>>
+SupplierCommandServiceImpl <<Application>>
+SupplierQueryServiceImpl <<Application>>
+CoffeeproductionContextFacade <<Application>>
+
+CoffeeLotRepository <<Infrastructure>>
+RoastProfileRepository <<Infrastructure>>
+SupplierRepository <<Infrastructure>>
+
+CoffeeLotsController <<Interface>>
+RoastProfilesController <<Interface>>
+SuppliersController <<Interface>>
+CoffeeLotResource <<Interface>>
+CreateCoffeeLotResource <<Interface>>
+UpdateCoffeeLotResource <<Interface>>
+RoastProfileResource <<Interface>>
+CreateRoastProfileResource <<Interface>>
+UpdateRoastProfileResource <<Interface>>
+SupplierResource <<Interface>>
+CreateSupplierResource <<Interface>>
+UpdateSupplierResource <<Interface>>
+UpdateCoffeeLotCommandFromResourceAssembler <<Interface>>
+UpdateRoastProfileCommandFromResourceAssembler <<Interface>>
+UpdateSupplierCommandFromResourceAssembler <<Interface>>
+
+@enduml 
