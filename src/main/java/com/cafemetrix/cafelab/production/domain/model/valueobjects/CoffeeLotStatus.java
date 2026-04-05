@@ -5,9 +5,6 @@ import jakarta.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * CoffeeLotStatus Value Object
- */
 @Embeddable
 public record CoffeeLotStatus(String value) {
     private static final List<String> VALID_STATUSES = Arrays.asList("green", "roasted");
@@ -27,4 +24,4 @@ public record CoffeeLotStatus(String value) {
     public CoffeeLotStatus() {
         this(null);
     }
-} 
+}

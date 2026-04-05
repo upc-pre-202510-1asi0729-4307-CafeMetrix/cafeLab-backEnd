@@ -2,60 +2,34 @@ package com.cafemetrix.cafelab.management.interfaces.acl;
 
 import com.cafemetrix.cafelab.management.domain.model.aggregates.InventoryEntry;
 import com.cafemetrix.cafelab.management.domain.model.commands.CreateInventoryEntryCommand;
-import com.cafemetrix.cafelab.management.domain.model.commands.DeleteInventoryEntryCommand;
-import com.cafemetrix.cafelab.management.domain.model.commands.UpdateInventoryEntryCommand;
-import com.cafemetrix.cafelab.management.domain.services.InventoryEntryCommandService;
-import com.cafemetrix.cafelab.management.domain.services.InventoryEntryQueryService;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class ManagementContextFacade {
-    private final InventoryEntryCommandService inventoryEntryCommandService;
-    private final InventoryEntryQueryService inventoryEntryQueryService;
+/**
+ * Anti-corruption facade for the management bounded context (inventory entries and stock coordination).
+ * Implementations live in {@code application.acl}; controllers depend on this interface only.
+ */
+public interface ManagementContextFacade {
 
-    public ManagementContextFacade(InventoryEntryCommandService inventoryEntryCommandService,
-                                 InventoryEntryQueryService inventoryEntryQueryService) {
-        this.inventoryEntryCommandService = inventoryEntryCommandService;
-        this.inventoryEntryQueryService = inventoryEntryQueryService;
-    }
+    Long createInventoryEntry(CreateInventoryEntryCommand command);
 
-    // Inventory Entry methods
-    public Long createInventoryEntry(Long userId, Long coffeeLotId, Double quantityUsed, 
-                                   LocalDateTime dateUsed, String finalProduct) {
-        var command = new CreateInventoryEntryCommand(userId, coffeeLotId, quantityUsed, dateUsed, finalProduct);
-        var result = inventoryEntryCommandService.handle(command);
-        return result.map(InventoryEntry::getId).orElse(0L);
-    }
+    Long updateInventoryEntry(
+            Long ownerUserId,
+            Long inventoryEntryId,
+            Long coffeeLotId,
+            Double quantityUsed,
+            LocalDateTime dateUsed,
+            String finalProduct);
 
-    public Long updateInventoryEntry(Long inventoryEntryId, Long coffeeLotId, Double quantityUsed, 
-                                   LocalDateTime dateUsed, String finalProduct) {
-        var command = new UpdateInventoryEntryCommand(inventoryEntryId, coffeeLotId, quantityUsed, dateUsed, finalProduct);
-        var result = inventoryEntryCommandService.handle(command);
-        return result.map(InventoryEntry::getId).orElse(0L);
-    }
+    boolean deleteInventoryEntry(Long ownerUserId, Long inventoryEntryId);
 
-    public boolean deleteInventoryEntry(Long inventoryEntryId) {
-        var command = new DeleteInventoryEntryCommand(inventoryEntryId);
-        return inventoryEntryCommandService.handle(command);
-    }
+    List<InventoryEntry> getAllInventoryEntries();
 
-    public List<InventoryEntry> getAllInventoryEntries() {
-        return inventoryEntryQueryService.getAllInventoryEntries();
-    }
+    List<InventoryEntry> getInventoryEntriesByUserId(Long userId);
 
-    public List<InventoryEntry> getInventoryEntriesByUserId(Long userId) {
-        return inventoryEntryQueryService.getInventoryEntriesByUserId(userId);
-    }
+    List<InventoryEntry> getInventoryEntriesByCoffeeLotId(Long coffeeLotId);
 
-    public List<InventoryEntry> getInventoryEntriesByCoffeeLotId(Long coffeeLotId) {
-        return inventoryEntryQueryService.getInventoryEntriesByCoffeeLotId(coffeeLotId);
-    }
-
-    public Optional<InventoryEntry> getInventoryEntryById(Long inventoryEntryId) {
-        return inventoryEntryQueryService.getInventoryEntryById(inventoryEntryId);
-    }
-} 
+    Optional<InventoryEntry> getInventoryEntryById(Long inventoryEntryId);
+}

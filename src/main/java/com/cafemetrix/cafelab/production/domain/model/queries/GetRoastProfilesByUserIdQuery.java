@@ -1,6 +1,9 @@
 package com.cafemetrix.cafelab.production.domain.model.queries;
 
-/**
- * Query for getting roast profiles by user ID
- */
-public record GetRoastProfilesByUserIdQuery(Long userId) {} 
+public record GetRoastProfilesByUserIdQuery(Long userId) {
+    public GetRoastProfilesByUserIdQuery {
+        if (userId == null || userId <= 0) {
+            throw new IllegalArgumentException("userId es requerido y debe ser positivo");
+        }
+    }
+}

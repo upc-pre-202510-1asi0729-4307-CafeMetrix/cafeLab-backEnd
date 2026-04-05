@@ -9,12 +9,9 @@ import com.cafemetrix.cafelab.production.domain.model.queries.GetCoffeeLotsByUse
 import java.util.List;
 import java.util.Optional;
 
-/**
- * CoffeeLot Query Service Interface
- */
 public interface CoffeeLotQueryService {
     List<CoffeeLot> handle(GetAllCoffeeLotsQuery query);
     Optional<CoffeeLot> handle(GetCoffeeLotByIdQuery query);
     List<CoffeeLot> handle(GetCoffeeLotsByUserIdQuery query);
     List<CoffeeLot> handle(GetCoffeeLotsBySupplierIdQuery query);
-} 
+}

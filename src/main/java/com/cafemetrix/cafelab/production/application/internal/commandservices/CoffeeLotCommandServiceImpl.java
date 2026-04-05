@@ -55,4 +55,4 @@ public class CoffeeLotCommandServiceImpl implements CoffeeLotCommandService {
             return false;
         }
     }
-} 
+}

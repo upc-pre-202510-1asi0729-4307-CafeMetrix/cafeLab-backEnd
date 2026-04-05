@@ -10,7 +10,7 @@ import java.util.Date;
 
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
-public class AuditableModel {
+public abstract class AuditableModel {
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +18,7 @@ public class AuditableModel {
 
     @Getter
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false, nullable = false)
     private Date createdAt;
 
     @Getter

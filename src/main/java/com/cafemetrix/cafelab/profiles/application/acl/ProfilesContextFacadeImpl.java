@@ -45,7 +45,7 @@ public class ProfilesContextFacadeImpl implements ProfilesContextFacade {
         return profile.isEmpty() ? Long.valueOf(0L) : profile.get().getId();
     }
 
-    public Long fetchProfileIdByEmail(String email) {
+    public Long fetchUserIdByEmail(String email) {
         var getProfileByEmailQuery = new GetProfileByEmailQuery(new EmailAddress(email));
         var profile = profileQueryService.handle(getProfileByEmailQuery);
         return profile.isEmpty() ? Long.valueOf(0L) : profile.get().getId();

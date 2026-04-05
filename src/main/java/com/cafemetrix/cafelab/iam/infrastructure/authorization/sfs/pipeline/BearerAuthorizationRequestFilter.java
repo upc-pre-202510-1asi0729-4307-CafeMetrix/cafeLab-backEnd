@@ -12,15 +12,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Misma idea que MediTrack: JWT con subject = email; carga {@link org.springframework.security.core.userdetails.UserDetails}.
+ */
 public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BearerAuthorizationRequestFilter.class);
     private final BearerTokenService tokenService;
-
 
     @Qualifier("defaultUserDetailsService")
     private final UserDetailsService userDetailsService;
@@ -31,20 +34,40 @@ public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
         try {
+            String path = request.getRequestURI();
+            if (path.startsWith("/api/v1/authentication/")
+                    || path.startsWith("/api/v1/profiles")
+                    || path.contains("/swagger-")
+                    || path.startsWith("/swagger-ui")
+                    || path.startsWith("/v3/api-docs")
+                    || path.startsWith("/webjars/")
+                    || path.equals("/error")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String token = tokenService.getBearerTokenFrom(request);
-            LOGGER.info("Token: {}", token);
-            if (token != null && tokenService.validateToken(token)) {
-                String username = tokenService.getUsernameFromToken(token);
-                var userDetails = userDetailsService.loadUserByUsername(username);
-                SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationTokenBuilder.build(userDetails, request));
+            if (token == null) {
+                LOGGER.debug("No Bearer token on {} {}", request.getMethod(), path);
+            } else if (tokenService.validateToken(token)) {
+                String email = tokenService.getUsernameFromToken(token);
+                try {
+                    var userDetails = userDetailsService.loadUserByUsername(email);
+                    SecurityContextHolder.getContext()
+                            .setAuthentication(UsernamePasswordAuthenticationTokenBuilder.build(userDetails, request));
+                } catch (UsernameNotFoundException ex) {
+                    LOGGER.warn("JWT válido pero usuario IAM no encontrado para subject={}", email);
+                }
             } else {
-                LOGGER.info("Token is not valid");
+                LOGGER.debug("Bearer presente pero token rechazado en {}", path);
             }
 
         } catch (Exception e) {
-            LOGGER.error("Cannot set user authentication: {}", e.getMessage());
+            LOGGER.error("Cannot set user authentication", e);
         }
         filterChain.doFilter(request, response);
     }

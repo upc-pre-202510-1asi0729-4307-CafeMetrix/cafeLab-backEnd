@@ -5,15 +5,7 @@ import jakarta.validation.constraints.*;
 
 import java.util.List;
 
-/**
- * Resource for creating a new supplier
- */
 public record CreateSupplierResource(
-    @JsonProperty("userId")
-    @NotNull(message = "UserId es requerido")
-    @Positive(message = "UserId debe ser positivo")
-    Long userId,
-
     @JsonProperty("name")
     @NotBlank(message = "Name es requerido")
     @Size(max = 100, message = "Name no puede tener más de 100 caracteres")
@@ -38,4 +30,4 @@ public record CreateSupplierResource(
     @JsonProperty("specialties")
     @Size(max = 4, message = "No se pueden tener más de 4 especialidades")
     List<String> specialties
-) {} 
+) {}

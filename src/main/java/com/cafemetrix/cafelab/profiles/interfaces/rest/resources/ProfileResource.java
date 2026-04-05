@@ -1,8 +1,5 @@
 package com.cafemetrix.cafelab.profiles.interfaces.rest.resources;
 
-/**
- * Resource for a profile.
- */
 public record ProfileResource(
         Long id,
         String name,

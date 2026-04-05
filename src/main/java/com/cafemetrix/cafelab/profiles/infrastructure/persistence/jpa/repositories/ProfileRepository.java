@@ -3,13 +3,13 @@ package com.cafemetrix.cafelab.profiles.infrastructure.persistence.jpa.repositor
 import com.cafemetrix.cafelab.profiles.domain.model.aggregates.Profile;
 import com.cafemetrix.cafelab.profiles.domain.model.valueobjects.EmailAddress;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
-/**
- * Profile Repository
- */
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
     /**
@@ -19,6 +19,14 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
      * @return A {@link Profile} instance if the email address is valid, otherwise empty
      */
     Optional<Profile> findByEmailAddress(EmailAddress emailAddress);
+
+    
+    @Query("SELECT p FROM Profile p WHERE LOWER(TRIM(p.emailAddress.address)) = :email")
+    Optional<Profile> findByNormalizedEmail(@Param("email") String normalizedEmail);
+
+    Optional<Profile> findByIamUserId(Long iamUserId);
+
+    List<Profile> findByIamUserIdIsNull();
 
     /**
      * Check if a Profile exists by Email Address

@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.production.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * SupplierName Value Object
- */
 @Embeddable
 public record SupplierName(String value) {
     public SupplierName {
@@ -19,4 +16,4 @@ public record SupplierName(String value) {
     public SupplierName() {
         this(null);
     }
-} 
+}

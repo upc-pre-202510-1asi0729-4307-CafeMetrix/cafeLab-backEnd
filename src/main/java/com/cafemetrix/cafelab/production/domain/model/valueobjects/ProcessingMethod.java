@@ -5,9 +5,6 @@ import jakarta.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * ProcessingMethod Value Object
- */
 @Embeddable
 public record ProcessingMethod(String value) {
     private static final List<String> VALID_METHODS = Arrays.asList("Anaeróbico", "Lavado", "Natural", "Honey");
@@ -27,4 +24,4 @@ public record ProcessingMethod(String value) {
     public ProcessingMethod() {
         this(null);
     }
-} 
+}

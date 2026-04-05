@@ -27,7 +27,6 @@ public class TokenServiceImpl implements BearerTokenService {
 
     private static final int TOKEN_BEGIN_INDEX = 7;
 
-
     @Value("${authorization.jwt.secret}")
     private String secret;
 

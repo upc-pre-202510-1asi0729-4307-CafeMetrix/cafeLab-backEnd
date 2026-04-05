@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-/**
- * ExtractionMethod Enum
- */
 public enum ExtractionMethod {
     ESPRESSO("espresso"),
     POUR_OVER("pour-over"),
@@ -33,18 +30,15 @@ public enum ExtractionMethod {
             return null;
         }
         
-        // Primero intentamos con el valor exacto
         for (ExtractionMethod method : ExtractionMethod.values()) {
             if (method.value.equalsIgnoreCase(text)) {
                 return method;
             }
         }
         
-        // Si no funciona, intentamos con el nombre del enum
         try {
             return valueOf(text);
         } catch (IllegalArgumentException e) {
-            // Si aún no funciona, intentamos convertir el formato
             String normalized = text.replace("_", "-").toLowerCase();
             for (ExtractionMethod method : ExtractionMethod.values()) {
                 if (method.value.equals(normalized)) {
@@ -73,4 +67,4 @@ public enum ExtractionMethod {
             return dbData == null ? null : ExtractionMethod.fromString(dbData);
         }
     }
-} 
+}

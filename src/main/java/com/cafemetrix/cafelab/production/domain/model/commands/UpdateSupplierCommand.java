@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.production.domain.model.commands;
 
 import java.util.List;
 
-/**
- * Command for updating a supplier
- */
 public record UpdateSupplierCommand(
     Long supplierId,
     String name,
@@ -21,4 +18,4 @@ public record UpdateSupplierCommand(
         if (location == null || location.isBlank()) throw new IllegalArgumentException("Location es requerido");
         if (specialties != null && specialties.size() > 4) throw new IllegalArgumentException("No se pueden tener más de 4 especialidades");
     }
-} 
+}

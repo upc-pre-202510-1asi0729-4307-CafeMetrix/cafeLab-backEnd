@@ -1,4 +1,7 @@
 package com.cafemetrix.cafelab.iam.interfaces.rest.resources;
 
-public record SignUpResource(String username, String password) {
+public record SignUpResource(String email, String password, String role) {
+    public SignUpResource(String email, String password) {
+        this(email, password, null);
+    }
 }

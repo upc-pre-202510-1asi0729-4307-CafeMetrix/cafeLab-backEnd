@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface RoastProfileRepository extends JpaRepository<RoastProfile, Long> {
     List<RoastProfile> findByUserId(Long userId);
+
     List<RoastProfile> findByCoffeeLotId(Long coffeeLotId);
+
     List<RoastProfile> findByUserIdAndCoffeeLotId(Long userId, Long coffeeLotId);
-} 
+}

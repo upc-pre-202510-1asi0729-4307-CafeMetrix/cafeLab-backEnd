@@ -1,8 +1,5 @@
 package com.cafemetrix.cafelab.coffees.interfaces.acl;
 
-/**
- * CoffeesContextFacade
- */
 public interface CoffeesContextFacade {
     /**
      * Create a new coffee

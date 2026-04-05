@@ -4,9 +4,6 @@ import jakarta.persistence.Embeddable;
 
 import java.util.regex.Pattern;
 
-/**
- * SupplierEmail Value Object
- */
 @Embeddable
 public record SupplierEmail(String value) {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
@@ -26,4 +23,4 @@ public record SupplierEmail(String value) {
     public SupplierEmail() {
         this(null);
     }
-} 
+}

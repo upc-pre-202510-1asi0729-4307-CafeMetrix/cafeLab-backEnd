@@ -9,9 +9,13 @@ import com.cafemetrix.cafelab.iam.domain.services.UserCommandService;
 import com.cafemetrix.cafelab.iam.infrastructure.persistence.jpa.repositories.UserRepository;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Misma lógica de sign-in / sign-up que {@code meditrack-platform} (sin organization/admin).
+ */
 @Service
 public class UserCommandServiceImpl implements UserCommandService {
 
@@ -27,21 +31,26 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     public Optional<ImmutablePair<User, String>> handle(SignInCommand command) {
-        var user = userRepository.findByUsername(command.username());
-        if (user.isEmpty())
+        var user = userRepository.findByEmail(command.email());
+        if (user.isEmpty()) {
             throw new RuntimeException("User not found");
-        if (!hashingService.matches(command.password(), user.get().getPassword()))
+        }
+        if (!hashingService.matches(command.password(), user.get().getPassword())) {
             throw new RuntimeException("Invalid password");
-        var token = tokenService.generateToken(user.get().getUsername());
+        }
+        var token = tokenService.generateToken(user.get().getEmail());
         return Optional.of(ImmutablePair.of(user.get(), token));
     }
 
     @Override
+    @Transactional
     public Optional<User> handle(SignUpCommand command) {
-        if (userRepository.existsByUsername(command.username()))
-            throw new RuntimeException("Username already exists");
-        var user = new User(command.username(), hashingService.encode(command.password()));
-        userRepository.save(user);
-        return userRepository.findByUsername(command.username());
+        if (userRepository.existsByEmail(command.email())) {
+            throw new RuntimeException("Email already exists");
+        }
+        var hashedPassword = hashingService.encode(command.password());
+        var user = new User(command.email(), hashedPassword, command.role());
+        var savedUser = userRepository.save(user);
+        return Optional.of(savedUser);
     }
 }

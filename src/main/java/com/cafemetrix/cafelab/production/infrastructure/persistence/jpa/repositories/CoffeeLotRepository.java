@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface CoffeeLotRepository extends JpaRepository<CoffeeLot, Long> {
     List<CoffeeLot> findByUserId(Long userId);
+
     List<CoffeeLot> findBySupplierId(Long supplierId);
+
     List<CoffeeLot> findByUserIdAndSupplierId(Long userId, Long supplierId);
-} 
+}

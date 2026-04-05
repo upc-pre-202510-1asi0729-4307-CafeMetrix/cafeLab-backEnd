@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.preparation.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * IngredientName Value Object
- */
 @Embeddable
 public record IngredientName(String value) {
     public IngredientName {
@@ -19,4 +16,4 @@ public record IngredientName(String value) {
     public IngredientName() {
         this(null);
     }
-} 
+}

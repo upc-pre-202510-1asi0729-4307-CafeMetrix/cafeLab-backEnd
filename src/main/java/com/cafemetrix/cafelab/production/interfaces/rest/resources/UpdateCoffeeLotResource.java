@@ -8,9 +8,6 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-/**
- * Resource for updating a coffee lot
- */
 public record UpdateCoffeeLotResource(
     @JsonProperty("lot_name")
     @NotBlank(message = "LotName es requerido")
@@ -49,4 +46,4 @@ public record UpdateCoffeeLotResource(
 
     @JsonProperty("certifications")
     List<String> certifications
-) {} 
+) {}

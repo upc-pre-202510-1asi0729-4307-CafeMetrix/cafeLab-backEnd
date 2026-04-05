@@ -9,9 +9,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-/**
- * InventoryEntry Aggregate Root
- */
+/** Entrada de inventario; {@code userId} persiste en {@code user_id} (FK a profiles.id). */
 @Entity
 @Table(name = "inventory_entries")
 public class InventoryEntry extends AuditableAbstractAggregateRoot<InventoryEntry> {
@@ -34,14 +32,8 @@ public class InventoryEntry extends AuditableAbstractAggregateRoot<InventoryEntr
     @AttributeOverride(name = "value", column = @Column(name = "final_product", length = 100))
     private FinalProduct finalProduct;
 
-    /**
-     * Constructor por defecto
-     */
     public InventoryEntry() {}
 
-    /**
-     * Constructor principal
-     */
     public InventoryEntry(Long userId, Long coffeeLotId, Double quantityUsed, 
                          LocalDateTime dateUsed, String finalProduct) {
         this.userId = userId;
@@ -51,9 +43,6 @@ public class InventoryEntry extends AuditableAbstractAggregateRoot<InventoryEntr
         this.finalProduct = new FinalProduct(finalProduct);
     }
 
-    /**
-     * Constructor con comando
-     */
     public InventoryEntry(CreateInventoryEntryCommand command) {
         this.userId = command.userId();
         this.coffeeLotId = command.coffeeLotId();
@@ -62,9 +51,6 @@ public class InventoryEntry extends AuditableAbstractAggregateRoot<InventoryEntr
         this.finalProduct = new FinalProduct(command.finalProduct());
     }
 
-    /**
-     * Método para actualizar la entrada de inventario
-     */
     public InventoryEntry update(UpdateInventoryEntryCommand command) {
         this.coffeeLotId = command.coffeeLotId();
         this.quantityUsed = command.quantityUsed();
@@ -73,8 +59,7 @@ public class InventoryEntry extends AuditableAbstractAggregateRoot<InventoryEntr
         return this;
     }
 
-    // Getters
     public Double getQuantityUsed() { return quantityUsed; }
     public LocalDateTime getDateUsed() { return dateUsed; }
     public String getFinalProduct() { return finalProduct.value(); }
-} 
+}

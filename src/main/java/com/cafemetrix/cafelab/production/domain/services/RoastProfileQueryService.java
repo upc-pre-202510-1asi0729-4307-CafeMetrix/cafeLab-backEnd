@@ -9,12 +9,9 @@ import com.cafemetrix.cafelab.production.domain.model.queries.GetRoastProfilesBy
 import java.util.List;
 import java.util.Optional;
 
-/**
- * RoastProfile Query Service Interface
- */
 public interface RoastProfileQueryService {
     List<RoastProfile> handle(GetAllRoastProfilesQuery query);
     Optional<RoastProfile> handle(GetRoastProfileByIdQuery query);
     List<RoastProfile> handle(GetRoastProfilesByUserIdQuery query);
     List<RoastProfile> handle(GetRoastProfilesByCoffeeLotIdQuery query);
-} 
+}

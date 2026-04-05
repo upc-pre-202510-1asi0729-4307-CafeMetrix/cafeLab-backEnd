@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.management.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * FinalProduct Value Object
- */
 @Embeddable
 public record FinalProduct(String value) {
     public FinalProduct {
@@ -19,4 +16,4 @@ public record FinalProduct(String value) {
     public FinalProduct() {
         this(null);
     }
-} 
+}

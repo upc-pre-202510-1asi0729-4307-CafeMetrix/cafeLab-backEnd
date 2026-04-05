@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.production.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * RoastType Value Object
- */
 @Embeddable
 public record RoastType(String value) {
     public RoastType {
@@ -28,4 +25,4 @@ public record RoastType(String value) {
                value.equals("Medio-Oscuro") || 
                value.equals("Oscuro");
     }
-} 
+}

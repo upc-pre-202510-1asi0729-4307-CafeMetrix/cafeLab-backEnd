@@ -1,5 +1,7 @@
 package com.cafemetrix.cafelab.profiles.interfaces.rest;
 
+import com.cafemetrix.cafelab.profiles.domain.exceptions.ProfileCreationFailedException;
+import com.cafemetrix.cafelab.profiles.domain.exceptions.ProfileNotFoundException;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetAllProfilesQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByEmailQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByIdQuery;
@@ -24,16 +26,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * ProfilesController
- */
 @RestController
 @RequestMapping(value = "/api/v1/profiles", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Profiles", description = "Available Profile Endpoints")
 public class ProfilesController {
     private final ProfileCommandService profileCommandService;
     private final ProfileQueryService profileQueryService;
-
 
     /**
      * Constructor
@@ -58,7 +56,7 @@ public class ProfilesController {
     public ResponseEntity<ProfileResource> createProfile(@RequestBody CreateProfileResource resource) {
         var createProfileCommand = CreateProfileCommandFromResourceAssembler.toCommandFromResource(resource);
         var profile = profileCommandService.handle(createProfileCommand);
-        if (profile.isEmpty()) return ResponseEntity.badRequest().build();
+        if (profile.isEmpty()) throw new ProfileCreationFailedException();
         var createdProfile = profile.get();
         var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(createdProfile);
         return new ResponseEntity<>(profileResource, HttpStatus.CREATED);
@@ -66,18 +64,18 @@ public class ProfilesController {
 
     /**
      * Get a profile by ID
-     * @param profileId The profile ID
+     * @param userId The profile (user) ID
      * @return A {@link ProfileResource} resource for the profile, or a not found response if the profile could not be found.
      */
-    @GetMapping("/{profileId}")
+    @GetMapping("/{userId}")
     @Operation(summary = "Get a profile by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Profile found"),
             @ApiResponse(responseCode = "404", description = "Profile not found")})
-    public ResponseEntity<ProfileResource> getProfileById(@PathVariable Long profileId) {
-        var getProfileByIdQuery = new GetProfileByIdQuery(profileId);
+    public ResponseEntity<ProfileResource> getProfileById(@PathVariable Long userId) {
+        var getProfileByIdQuery = new GetProfileByIdQuery(userId);
         var profile = profileQueryService.handle(getProfileByIdQuery);
-        if (profile.isEmpty()) return ResponseEntity.notFound().build();
+        if (profile.isEmpty()) throw new ProfileNotFoundException(userId);
         var profileEntity = profile.get();
         var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profileEntity);
         return ResponseEntity.ok(profileResource);
@@ -91,7 +89,7 @@ public class ProfilesController {
     })
     public ResponseEntity<ProfileResource> getProfileByEmail(@RequestParam String email) {
         var profile = profileQueryService.handle(new GetProfileByEmailQuery(new EmailAddress(email)));
-        if (profile.isEmpty()) return ResponseEntity.notFound().build();
+        if (profile.isEmpty()) throw new ProfileNotFoundException(email);
         var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profile.get());
         return ResponseEntity.ok(profileResource);
     }
@@ -107,25 +105,27 @@ public class ProfilesController {
             @ApiResponse(responseCode = "404", description = "Profiles not found")})
     public ResponseEntity<List<ProfileResource>> getAllProfiles() {
         var profiles = profileQueryService.handle(new GetAllProfilesQuery());
-        if (profiles.isEmpty()) return ResponseEntity.notFound().build();
+        if (profiles.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
         var profileResources = profiles.stream()
                 .map(ProfileResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(profileResources);
     }
 
-    @PatchMapping("/{profileId}")
+    @PatchMapping("/{userId}")
     @Operation(summary = "Update profile", description = "Update an existing profile.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Profile updated successfully."),
             @ApiResponse(responseCode = "400", description = "Bad request."),
             @ApiResponse(responseCode = "404", description = "Profile not found.")})
-    public ResponseEntity<ProfileResource> updateProfile(@PathVariable Long profileId, @RequestBody UpdateProfileResource resource) {
-        var updateProfileCommand = UpdateProfileCommandFromResourceAssembler.toCommandFromResource(profileId, resource);
+    public ResponseEntity<ProfileResource> updateProfile(@PathVariable Long userId, @RequestBody UpdateProfileResource resource) {
+        var updateProfileCommand = UpdateProfileCommandFromResourceAssembler.toCommandFromResource(userId, resource);
         var updatedProfile = profileCommandService.handle(updateProfileCommand);
 
         if (updatedProfile.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new ProfileNotFoundException(userId);
         }
 
         var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(updatedProfile.get());

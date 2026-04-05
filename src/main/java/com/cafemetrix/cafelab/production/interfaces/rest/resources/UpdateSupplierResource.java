@@ -5,9 +5,6 @@ import jakarta.validation.constraints.*;
 
 import java.util.List;
 
-/**
- * Resource for updating a supplier
- */
 public record UpdateSupplierResource(
     @JsonProperty("name")
     @NotBlank(message = "Name es requerido")
@@ -33,4 +30,4 @@ public record UpdateSupplierResource(
     @JsonProperty("specialties")
     @Size(max = 4, message = "No se pueden tener más de 4 especialidades")
     List<String> specialties
-) {} 
+) {}

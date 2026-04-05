@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.production.domain.model.commands;
 
 import java.util.List;
 
-/**
- * Command for creating a new coffee lot
- */
 public record CreateCoffeeLotCommand(
     Long userId,
     Long supplierId,
@@ -18,7 +15,9 @@ public record CreateCoffeeLotCommand(
     List<String> certifications
 ) {
     public CreateCoffeeLotCommand {
-        if (userId == null || userId <= 0) throw new IllegalArgumentException("UserId es requerido y debe ser positivo");
+        if (userId == null || userId <= 0) {
+            throw new IllegalArgumentException("userId es requerido y debe ser positivo");
+        }
         if (supplierId == null || supplierId <= 0) throw new IllegalArgumentException("SupplierId es requerido y debe ser positivo");
         if (lotName == null || lotName.isBlank()) throw new IllegalArgumentException("LotName es requerido");
         if (coffeeType == null || coffeeType.isBlank()) throw new IllegalArgumentException("CoffeeType es requerido");
@@ -28,4 +27,4 @@ public record CreateCoffeeLotCommand(
         if (origin == null || origin.isBlank()) throw new IllegalArgumentException("Origin es requerido");
         if (status == null || status.isBlank()) throw new IllegalArgumentException("Status es requerido");
     }
-} 
+}

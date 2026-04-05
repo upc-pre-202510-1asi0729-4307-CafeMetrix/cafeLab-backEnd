@@ -39,4 +39,4 @@ public class CoffeeLotQueryServiceImpl implements CoffeeLotQueryService {
     public List<CoffeeLot> handle(GetCoffeeLotsBySupplierIdQuery query) {
         return coffeeLotRepository.findBySupplierId(query.supplierId());
     }
-} 
+}

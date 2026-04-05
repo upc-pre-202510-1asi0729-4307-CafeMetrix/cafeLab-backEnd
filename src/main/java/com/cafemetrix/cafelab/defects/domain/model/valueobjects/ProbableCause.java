@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.defects.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * ProbableCause Value Object
- */
 @Embeddable
 public record ProbableCause(String value) {
     public ProbableCause() {

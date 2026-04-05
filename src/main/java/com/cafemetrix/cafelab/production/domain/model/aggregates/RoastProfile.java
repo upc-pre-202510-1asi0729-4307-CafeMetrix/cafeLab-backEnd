@@ -10,9 +10,7 @@ import com.cafemetrix.cafelab.shared.domain.model.aggregates.AuditableAbstractAg
 import jakarta.persistence.*;
 import lombok.Getter;
 
-/**
- * RoastProfile Aggregate Root
- */
+/** Perfil de tueste; {@code userId} persiste en {@code user_id} (FK a profiles.id). */
 @Entity
 @Table(name = "roast_profiles")
 public class RoastProfile extends AuditableAbstractAggregateRoot<RoastProfile> {
@@ -48,16 +46,12 @@ public class RoastProfile extends AuditableAbstractAggregateRoot<RoastProfile> {
     @Column(name = "coffee_lot_id", nullable = false)
     private Long coffeeLotId;
 
-    /**
-     * Constructor por defecto
-     */
+    
     public RoastProfile() {
         this.isFavorite = false;
     }
 
-    /**
-     * Constructor principal
-     */
+    
     public RoastProfile(Long userId, String name, String type, Integer duration, 
                        Double tempStart, Double tempEnd, Long coffeeLotId) {
         this.userId = userId;
@@ -70,9 +64,7 @@ public class RoastProfile extends AuditableAbstractAggregateRoot<RoastProfile> {
         this.isFavorite = false;
     }
 
-    /**
-     * Constructor con comando
-     */
+    
     public RoastProfile(CreateRoastProfileCommand command) {
         this.userId = command.userId();
         this.name = new RoastProfileName(command.name());
@@ -84,9 +76,7 @@ public class RoastProfile extends AuditableAbstractAggregateRoot<RoastProfile> {
         this.isFavorite = command.isFavorite() != null ? command.isFavorite() : false;
     }
 
-    /**
-     * Método para actualizar el perfil de tueste
-     */
+    
     public RoastProfile update(UpdateRoastProfileCommand command) {
         this.name = new RoastProfileName(command.name());
         this.type = new RoastType(command.type());
@@ -98,18 +88,15 @@ public class RoastProfile extends AuditableAbstractAggregateRoot<RoastProfile> {
         return this;
     }
 
-    /**
-     * Método para cambiar el estado de favorito
-     */
+    
     public void toggleFavorite() {
         this.isFavorite = !this.isFavorite;
     }
 
-    // Getters
     public String getName() { return name.value(); }
     public String getType() { return type.value(); }
     public Integer getDuration() { return duration.value(); }
     public Double getTempStart() { return tempStart.value(); }
     public Double getTempEnd() { return tempEnd.value(); }
     public Boolean getIsFavorite() { return isFavorite; }
-} 
+}

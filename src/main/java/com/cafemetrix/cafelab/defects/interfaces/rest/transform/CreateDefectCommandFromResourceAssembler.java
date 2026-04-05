@@ -3,18 +3,15 @@ package com.cafemetrix.cafelab.defects.interfaces.rest.transform;
 import com.cafemetrix.cafelab.defects.domain.model.commands.CreateDefectCommand;
 import com.cafemetrix.cafelab.defects.interfaces.rest.resources.CreateDefectResource;
 
-/**
- * Assembler to convert a CreateDefectResource to a CreateDefectCommand.
- */
 public class CreateDefectCommandFromResourceAssembler {
-    /**
-     * Converts a CreateDefectResource to a CreateDefectCommand.
-     * @param resource The {@link CreateDefectResource} resource to convert.
-     * @return The {@link CreateDefectCommand} command.
-     */
-    public static CreateDefectCommand toCommandFromResource(CreateDefectResource resource) {
+
+    public static CreateDefectCommand toCommandFromResource(Long userId, CreateDefectResource resource) {
         return new CreateDefectCommand(
-                resource.coffeeId(),
+                userId,
+                resource.coffeeDisplayName(),
+                blankToNull(resource.coffeeRegion()),
+                blankToNull(resource.coffeeVariety()),
+                resource.coffeeTotalWeight(),
                 resource.name(),
                 resource.defectType(),
                 resource.defectWeight(),
@@ -22,5 +19,12 @@ public class CreateDefectCommandFromResourceAssembler {
                 resource.probableCause(),
                 resource.suggestedSolution()
         );
+    }
+
+    private static String blankToNull(String s) {
+        if (s == null || s.isBlank()) {
+            return null;
+        }
+        return s.trim();
     }
 }

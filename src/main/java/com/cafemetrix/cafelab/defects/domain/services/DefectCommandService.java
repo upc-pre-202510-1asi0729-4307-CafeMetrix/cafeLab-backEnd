@@ -5,9 +5,6 @@ import com.cafemetrix.cafelab.defects.domain.model.commands.CreateDefectCommand;
 
 import java.util.Optional;
 
-/**
- * Defect Command Service
- */
 public interface DefectCommandService {
     /**
      * Handle Create Defect Command

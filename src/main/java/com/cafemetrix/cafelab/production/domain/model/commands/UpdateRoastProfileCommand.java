@@ -1,8 +1,5 @@
 package com.cafemetrix.cafelab.production.domain.model.commands;
 
-/**
- * Command for updating a roast profile
- */
 public record UpdateRoastProfileCommand(
     Long roastProfileId,
     String name,
@@ -23,4 +20,4 @@ public record UpdateRoastProfileCommand(
         if (coffeeLotId == null || coffeeLotId <= 0) throw new IllegalArgumentException("CoffeeLotId es requerido y debe ser positivo");
         if (isFavorite == null) throw new IllegalArgumentException("IsFavorite es requerido");
     }
-} 
+}

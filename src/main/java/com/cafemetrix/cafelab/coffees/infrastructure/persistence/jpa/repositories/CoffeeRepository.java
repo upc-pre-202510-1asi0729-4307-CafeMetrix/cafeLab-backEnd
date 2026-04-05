@@ -7,9 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Coffee Repository
- */
 @Repository
 public interface CoffeeRepository extends JpaRepository<Coffee, Long> {
     /**

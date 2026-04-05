@@ -160,4 +160,4 @@ public class CoffeeproductionContextFacadeImpl implements CoffeeproductionContex
     public List<RoastProfile> getRoastProfilesByCoffeeLotId(Long coffeeLotId) {
         return roastProfileQueryService.handle(new GetRoastProfilesByCoffeeLotIdQuery(coffeeLotId));
     }
-} 
+}

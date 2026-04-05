@@ -20,4 +20,4 @@ public class IngredientQueryServiceImpl implements IngredientQueryService {
     public List<Ingredient> handle(GetIngredientsByRecipeIdQuery query) {
         return ingredientRepository.findByRecipeId(query.recipeId());
     }
-} 
+}

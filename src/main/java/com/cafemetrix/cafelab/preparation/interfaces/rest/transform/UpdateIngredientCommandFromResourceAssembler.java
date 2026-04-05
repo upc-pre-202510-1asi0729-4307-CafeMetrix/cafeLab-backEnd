@@ -1,11 +1,8 @@
 package com.cafemetrix.cafelab.preparation.interfaces.rest.transform;
 
 import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateIngredientCommand;
-import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.UpdateIngredientResource;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.dto.UpdateIngredientResource;
 
-/**
- * Assembler for transforming UpdateIngredientResource to UpdateIngredientCommand
- */
 public class UpdateIngredientCommandFromResourceAssembler {
     public static UpdateIngredientCommand toCommandFromResource(Long ingredientId, UpdateIngredientResource resource) {
         return new UpdateIngredientCommand(
@@ -15,4 +12,4 @@ public class UpdateIngredientCommandFromResourceAssembler {
             resource.unit()
         );
     }
-} 
+}

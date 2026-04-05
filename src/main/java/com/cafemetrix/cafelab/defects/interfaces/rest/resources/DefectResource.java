@@ -1,11 +1,12 @@
 package com.cafemetrix.cafelab.defects.interfaces.rest.resources;
 
-/**
- * Resource for a defect.
- */
 public record DefectResource(
         Long id,
-        Long coffeeId,
+        Long userId,
+        String coffeeDisplayName,
+        String coffeeRegion,
+        String coffeeVariety,
+        Double coffeeTotalWeight,
         String name,
         String defectType,
         Double defectWeight,

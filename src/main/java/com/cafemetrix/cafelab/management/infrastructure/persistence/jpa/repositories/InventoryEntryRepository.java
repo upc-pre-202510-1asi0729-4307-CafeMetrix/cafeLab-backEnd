@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface InventoryEntryRepository extends JpaRepository<InventoryEntry, Long> {
     List<InventoryEntry> findByUserId(Long userId);
+
     List<InventoryEntry> findByCoffeeLotId(Long coffeeLotId);
+
     List<InventoryEntry> findByUserIdAndCoffeeLotId(Long userId, Long coffeeLotId);
-} 
+}

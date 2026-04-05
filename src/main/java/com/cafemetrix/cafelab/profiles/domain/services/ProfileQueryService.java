@@ -3,14 +3,12 @@ package com.cafemetrix.cafelab.profiles.domain.services;
 import com.cafemetrix.cafelab.profiles.domain.model.aggregates.Profile;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetAllProfilesQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByEmailQuery;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByIamUserIdQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByIdQuery;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Profile Query Service
- */
 public interface ProfileQueryService {
     /**
      * Handle Get Profile By ID Query
@@ -27,6 +25,11 @@ public interface ProfileQueryService {
      * @return A {@link Profile} instance if the query is valid, otherwise empty
      */
     Optional<Profile> handle(GetProfileByEmailQuery query);
+
+    /**
+     * Perfil asociado al usuario IAM (columna {@code profiles.user_id}).
+     */
+    Optional<Profile> handle(GetProfileByIamUserIdQuery query);
 
     /**
      * Handle Get All Profiles Query

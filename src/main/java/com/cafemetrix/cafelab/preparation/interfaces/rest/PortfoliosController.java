@@ -1,8 +1,14 @@
 package com.cafemetrix.cafelab.preparation.interfaces.rest;
 
+import com.cafemetrix.cafelab.preparation.domain.exceptions.PortfolioNotFoundException;
 import com.cafemetrix.cafelab.preparation.interfaces.acl.PreparationContextFacade;
-import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.*;
-import com.cafemetrix.cafelab.preparation.interfaces.rest.transform.*;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.dto.CreatePortfolioResource;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.dto.PortfolioResource;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.dto.UpdatePortfolioResource;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.transform.CreatePortfolioCommandFromResourceAssembler;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.transform.PortfolioResourceFromEntityAssembler;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.transform.UpdatePortfolioCommandFromResourceAssembler;
+import com.cafemetrix.cafelab.iam.infrastructure.authorization.sfs.support.CurrentProfileIdResolver;
 import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,106 +18,122 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/v1/portfolios", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Portfolios", description = "Portfolio Management Endpoints")
+@Tag(name = "Portfolios", description = "Portafolios por perfil (JWT)")
 public class PortfoliosController {
     private final PreparationContextFacade preparationContextFacade;
+    private final CurrentProfileIdResolver currentProfileIdResolver;
 
-    public PortfoliosController(PreparationContextFacade preparationContextFacade) {
+    public PortfoliosController(
+            PreparationContextFacade preparationContextFacade,
+            CurrentProfileIdResolver currentProfileIdResolver) {
         this.preparationContextFacade = preparationContextFacade;
+        this.currentProfileIdResolver = currentProfileIdResolver;
     }
 
-    @Operation(summary = "Create a new portfolio")
-    @PostMapping
+    private Optional<Long> resolveCurrentUserId() {
+        return currentProfileIdResolver.resolveProfileId();
+    }
+
+    private ResponseEntity<?> unauthorized(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResource(message));
+    }
+
+    @Operation(summary = "Crear portafolio (perfil desde JWT)")
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createPortfolio(@RequestBody CreatePortfolioResource resource) {
-        var portfolioId = preparationContextFacade.createPortfolio(
-            resource.userId(),
-            resource.name()
-        );
-
-        if (portfolioId == 0L) {
-            return ResponseEntity.badRequest()
-                .body(new MessageResource("No se pudo crear el portafolio"));
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
         }
-
-        var portfolio = preparationContextFacade.getPortfolioById(portfolioId);
-        if (portfolio.isEmpty()) {
-            return ResponseEntity.badRequest()
-                .body(new MessageResource("No se pudo obtener el portafolio creado"));
+        try {
+            var command =
+                    CreatePortfolioCommandFromResourceAssembler.toCommand(userIdOpt.get(), resource);
+            var portfolioId = preparationContextFacade.createPortfolio(
+                    command.userId(), command.name());
+            if (portfolioId == null || portfolioId == 0L) {
+                return ResponseEntity.badRequest()
+                        .body(new MessageResource("No se pudo crear el portafolio"));
+            }
+            var portfolio =
+                    preparationContextFacade.getPortfolioByIdForUser(portfolioId, userIdOpt.get());
+            if (portfolio.isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(new MessageResource("No se pudo obtener el portafolio creado"));
+            }
+            var portfolioResource = PortfolioResourceFromEntityAssembler.toResourceFromEntity(portfolio.get());
+            return new ResponseEntity<>(portfolioResource, HttpStatus.CREATED);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(new MessageResource(ex.getMessage()));
         }
-
-        var portfolioResource = PortfolioResourceFromEntityAssembler.toResourceFromEntity(portfolio.get());
-        return new ResponseEntity<>(portfolioResource, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Get all portfolios")
+    @Operation(summary = "Listar portafolios del perfil autenticado")
     @GetMapping
-    public ResponseEntity<List<PortfolioResource>> getAllPortfolios() {
-        var portfolios = preparationContextFacade.getAllPortfolios();
-        var portfolioResources = portfolios.stream()
-            .map(PortfolioResourceFromEntityAssembler::toResourceFromEntity)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(portfolioResources);
+    public ResponseEntity<?> listMyPortfolios() {
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        var portfolios = preparationContextFacade.getPortfoliosByUserId(userIdOpt.get());
+        var resources = portfolios.stream()
+                .map(PortfolioResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(resources);
     }
 
-    @Operation(summary = "Get a portfolio by ID")
+    @Operation(summary = "Obtener portafolio por id (solo si pertenece al perfil)")
     @GetMapping("/{portfolioId}")
     public ResponseEntity<?> getPortfolioById(@PathVariable Long portfolioId) {
-        var portfolio = preparationContextFacade.getPortfolioById(portfolioId);
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        var portfolio =
+                preparationContextFacade.getPortfolioByIdForUser(portfolioId, userIdOpt.get());
         if (portfolio.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new PortfolioNotFoundException(portfolioId);
         }
-
-        var portfolioResource = PortfolioResourceFromEntityAssembler.toResourceFromEntity(portfolio.get());
-        return ResponseEntity.ok(portfolioResource);
+        return ResponseEntity.ok(PortfolioResourceFromEntityAssembler.toResourceFromEntity(portfolio.get()));
     }
 
-    @Operation(summary = "Get portfolios by user ID")
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<List<PortfolioResource>> getPortfoliosByUserId(@PathVariable Long userId) {
-        var portfolios = preparationContextFacade.getPortfoliosByUserId(userId);
-        var portfolioResources = portfolios.stream()
-            .map(PortfolioResourceFromEntityAssembler::toResourceFromEntity)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(portfolioResources);
+    @Operation(summary = "Actualizar portafolio (solo si pertenece al perfil)")
+    @PutMapping(value = "/{portfolioId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updatePortfolio(
+            @PathVariable Long portfolioId, @RequestBody UpdatePortfolioResource resource) {
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        try {
+            var command = UpdatePortfolioCommandFromResourceAssembler.toCommandFromResource(
+                    userIdOpt.get(), portfolioId, resource);
+            var updated = preparationContextFacade.updatePortfolio(command);
+            if (updated.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new MessageResource("No se pudo actualizar el portafolio"));
+            }
+            return ResponseEntity.ok(PortfolioResourceFromEntityAssembler.toResourceFromEntity(updated.get()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(new MessageResource(ex.getMessage()));
+        }
     }
 
-    @Operation(summary = "Update a portfolio")
-    @PutMapping("/{portfolioId}")
-    public ResponseEntity<?> updatePortfolio(@PathVariable Long portfolioId, @RequestBody UpdatePortfolioResource resource) {
-        var updatePortfolioCommand = UpdatePortfolioCommandFromResourceAssembler.toCommandFromResource(portfolioId, resource);
-        var updatedPortfolioId = preparationContextFacade.updatePortfolio(
-            updatePortfolioCommand.portfolioId(),
-            updatePortfolioCommand.name()
-        );
-
-        if (updatedPortfolioId == 0L) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new MessageResource("No se pudo actualizar el portafolio"));
-        }
-
-        var portfolio = preparationContextFacade.getPortfolioById(updatedPortfolioId);
-        if (portfolio.isEmpty()) {
-            return ResponseEntity.badRequest()
-                .body(new MessageResource("No se pudo obtener el portafolio actualizado"));
-        }
-
-        var portfolioResource = PortfolioResourceFromEntityAssembler.toResourceFromEntity(portfolio.get());
-        return ResponseEntity.ok(portfolioResource);
-    }
-
-    @Operation(summary = "Delete a portfolio")
+    @Operation(summary = "Eliminar portafolio (solo si pertenece al perfil)")
     @DeleteMapping("/{portfolioId}")
     public ResponseEntity<?> deletePortfolio(@PathVariable Long portfolioId) {
-        var deleted = preparationContextFacade.deletePortfolio(portfolioId);
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        boolean deleted = preparationContextFacade.deletePortfolio(portfolioId, userIdOpt.get());
         if (deleted) {
             return ResponseEntity.ok(new MessageResource("Portafolio eliminado exitosamente"));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new MessageResource("No se pudo eliminar el portafolio"));
         }
+        throw new PortfolioNotFoundException(portfolioId);
     }
-} 
+}

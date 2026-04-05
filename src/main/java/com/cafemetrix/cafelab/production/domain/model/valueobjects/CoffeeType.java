@@ -5,9 +5,6 @@ import jakarta.persistence.Embeddable;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * CoffeeType Value Object
- */
 @Embeddable
 public record CoffeeType(String value) {
     private static final List<String> VALID_TYPES = Arrays.asList("Arábica", "Robusta", "Mezcla");
@@ -27,4 +24,4 @@ public record CoffeeType(String value) {
     public CoffeeType() {
         this(null);
     }
-} 
+}

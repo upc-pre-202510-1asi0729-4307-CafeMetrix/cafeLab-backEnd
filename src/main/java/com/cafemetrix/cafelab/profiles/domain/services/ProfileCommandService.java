@@ -6,9 +6,6 @@ import com.cafemetrix.cafelab.profiles.domain.model.commands.UpdateProfileComman
 
 import java.util.Optional;
 
-/**
- * Profile Command Service
- */
 public interface ProfileCommandService {
     /**
      * Handle Create Profile Command

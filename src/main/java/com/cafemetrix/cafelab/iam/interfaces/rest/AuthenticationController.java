@@ -1,14 +1,15 @@
 package com.cafemetrix.cafelab.iam.interfaces.rest;
 
+import com.cafemetrix.cafelab.iam.domain.exceptions.SignInFailedException;
+import com.cafemetrix.cafelab.iam.domain.exceptions.SignUpFailedException;
+import com.cafemetrix.cafelab.iam.domain.model.commands.SignInCommand;
 import com.cafemetrix.cafelab.iam.domain.services.UserCommandService;
 import com.cafemetrix.cafelab.iam.interfaces.rest.resources.AuthenticatedUserResource;
 import com.cafemetrix.cafelab.iam.interfaces.rest.resources.SignInResource;
 import com.cafemetrix.cafelab.iam.interfaces.rest.resources.SignUpResource;
-import com.cafemetrix.cafelab.iam.interfaces.rest.resources.UserResource;
 import com.cafemetrix.cafelab.iam.interfaces.rest.transform.AuthenticatedUserResourceFromEntityAssembler;
 import com.cafemetrix.cafelab.iam.interfaces.rest.transform.SignInCommandFromResourceAssembler;
 import com.cafemetrix.cafelab.iam.interfaces.rest.transform.SignUpCommandFromResourceAssembler;
-import com.cafemetrix.cafelab.iam.interfaces.rest.transform.UserResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/v1/authentication", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Authentication", description = "Available Authentication Endpoints")
+@Tag(name = "Authentication", description = "IAM al estilo MediTrack (email + JWT)")
 public class AuthenticationController {
     private final UserCommandService userCommandService;
 
@@ -32,32 +33,41 @@ public class AuthenticationController {
     }
 
     @PostMapping("/sign-in")
-    @Operation(summary = "Sign-in", description = "Sign-in with the provided credentials.")
+    @Operation(summary = "Sign-in", description = "Email y contraseña.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User authenticated successfully."),
-            @ApiResponse(responseCode = "404", description = "User not found.")})
+            @ApiResponse(responseCode = "200", description = "Autenticación correcta."),
+            @ApiResponse(responseCode = "404", description = "Credenciales inválidas.")})
     public ResponseEntity<AuthenticatedUserResource> signIn(@RequestBody SignInResource signInResource) {
         var signInCommand = SignInCommandFromResourceAssembler.toCommandFromResource(signInResource);
         var authenticatedUser = userCommandService.handle(signInCommand);
         if (authenticatedUser.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new SignInFailedException();
         }
-        var authenticatedUserResource = AuthenticatedUserResourceFromEntityAssembler.toResourceFromEntity(authenticatedUser.get().getLeft(), authenticatedUser.get().getRight());
+        var authenticatedUserResource =
+                AuthenticatedUserResourceFromEntityAssembler.toResourceFromEntity(
+                        authenticatedUser.get().getLeft(), authenticatedUser.get().getRight());
         return ResponseEntity.ok(authenticatedUserResource);
     }
 
     @PostMapping("/sign-up")
-    @Operation(summary = "Sign-up", description = "Sign-up with the provided credentials.")
+    @Operation(summary = "Sign-up", description = "Registro; devuelve token como en MediTrack.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "User created successfully."),
-            @ApiResponse(responseCode = "400", description = "Bad request.")})
-    public ResponseEntity<UserResource> signUp(@RequestBody SignUpResource signUpResource) {
+            @ApiResponse(responseCode = "201", description = "Usuario creado y sesión iniciada."),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida.")})
+    public ResponseEntity<AuthenticatedUserResource> signUp(@RequestBody SignUpResource signUpResource) {
         var signUpCommand = SignUpCommandFromResourceAssembler.toCommandFromResource(signUpResource);
         var user = userCommandService.handle(signUpCommand);
         if (user.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            throw new SignUpFailedException();
         }
-        var userResource = UserResourceFromEntityAssembler.toResourceFromEntity(user.get());
-        return new ResponseEntity<>(userResource, HttpStatus.CREATED);
+        var signInCommand = new SignInCommand(signUpResource.email(), signUpResource.password());
+        var authenticatedUser = userCommandService.handle(signInCommand);
+        if (authenticatedUser.isEmpty()) {
+            throw new SignUpFailedException();
+        }
+        var resource =
+                AuthenticatedUserResourceFromEntityAssembler.toResourceFromEntity(
+                        authenticatedUser.get().getLeft(), authenticatedUser.get().getRight());
+        return new ResponseEntity<>(resource, HttpStatus.CREATED);
     }
 }

@@ -1,25 +1,37 @@
 package com.cafemetrix.cafelab.production.interfaces.rest.resources;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 /**
- * Resource for creating a new roast profile
+ * Cuerpo POST: sin userId (lo fija el JWT). {@code lot} es el id del lote de café.
  */
 public record CreateRoastProfileResource(
-    Long userId,
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 50, message = "El nombre no puede superar 50 caracteres")
     String name,
+
+    @NotBlank(message = "El tipo es obligatorio")
+    @Size(max = 20, message = "El tipo no puede superar 20 caracteres")
     String type,
+
+    @NotNull(message = "La duración es obligatoria")
+    @Positive(message = "La duración debe ser positiva")
     Integer duration,
+
+    @NotNull(message = "La temperatura inicial es obligatoria")
     Double tempStart,
+
+    @NotNull(message = "La temperatura final es obligatoria")
     Double tempEnd,
+
+    @JsonProperty("lot")
+    @NotNull(message = "Debe vincular un lote de café")
+    @Positive(message = "Lote inválido")
     Long lot,
+
     Boolean isFavorite
-) {
-    public CreateRoastProfileResource {
-        if (userId == null || userId <= 0) throw new IllegalArgumentException("UserId es requerido y debe ser positivo");
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("Name es requerido");
-        if (type == null || type.isBlank()) throw new IllegalArgumentException("Type es requerido");
-        if (duration == null || duration <= 0) throw new IllegalArgumentException("Duration es requerido y debe ser positivo");
-        if (tempStart == null) throw new IllegalArgumentException("TempStart es requerido");
-        if (tempEnd == null) throw new IllegalArgumentException("TempEnd es requerido");
-        if (lot == null || lot <= 0) throw new IllegalArgumentException("Lot es requerido y debe ser positivo");
-    }
-} 
+) {}
