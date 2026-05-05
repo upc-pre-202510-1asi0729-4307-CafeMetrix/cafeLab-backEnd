@@ -13,6 +13,7 @@ import com.cafemetrix.cafelab.iam.interfaces.rest.transform.SignUpCommandFromRes
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,7 +34,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/sign-in")
-    @Operation(summary = "Sign-in", description = "Email y contraseña.")
+    @Operation(
+            summary = "Sign-in",
+            description = "Email y contraseña.",
+            security = {@SecurityRequirement(name = "")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Autenticación correcta."),
             @ApiResponse(responseCode = "404", description = "Credenciales inválidas.")})
@@ -50,7 +54,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/sign-up")
-    @Operation(summary = "Sign-up", description = "Registro; devuelve token como en MediTrack.")
+    @Operation(
+            summary = "Sign-up",
+            description = "Registro; devuelve token como en MediTrack.",
+            security = {@SecurityRequirement(name = "")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario creado y sesión iniciada."),
             @ApiResponse(responseCode = "400", description = "Solicitud inválida.")})
