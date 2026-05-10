@@ -18,7 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * Misma idea que MediTrack: JWT con subject = email; carga {@link org.springframework.security.core.userdetails.UserDetails}.
+ * JWT con subject = email; carga {@link org.springframework.security.core.userdetails.UserDetails}.
  */
 public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
 

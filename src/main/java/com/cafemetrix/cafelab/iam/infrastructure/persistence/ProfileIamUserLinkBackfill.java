@@ -11,7 +11,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Enlaza {@code profiles.user_id} cuando el email del perfil coincide con {@code users.email} (IAM MediTrack).
+ * Enlaza {@code profiles.user_id} cuando el email del perfil coincide con {@code users.email} (IAM).
  */
 @Component
 @Order

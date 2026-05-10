@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/v1/authentication", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Authentication", description = "IAM al estilo MediTrack (email + JWT)")
+@Tag(name = "Authentication", description = "IAM: email y JWT")
 public class AuthenticationController {
     private final UserCommandService userCommandService;
 
@@ -56,7 +56,7 @@ public class AuthenticationController {
     @PostMapping("/sign-up")
     @Operation(
             summary = "Sign-up",
-            description = "Registro; devuelve token como en MediTrack.",
+            description = "Registro; devuelve token.",
             security = {@SecurityRequirement(name = "")})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario creado y sesión iniciada."),

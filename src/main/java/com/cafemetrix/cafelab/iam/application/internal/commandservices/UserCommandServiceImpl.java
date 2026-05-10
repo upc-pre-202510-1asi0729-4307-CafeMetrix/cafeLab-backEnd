@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 /**
- * Misma lógica de sign-in / sign-up que {@code meditrack-platform} (sin organization/admin).
+ * Sign-in y sign-up (email, hash de contraseña y emisión de token); sin organización ni rol admin extendido.
  */
 @Service
 public class UserCommandServiceImpl implements UserCommandService {
