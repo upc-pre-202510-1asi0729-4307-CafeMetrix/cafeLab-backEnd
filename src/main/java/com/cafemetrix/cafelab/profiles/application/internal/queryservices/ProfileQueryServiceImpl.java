@@ -1,6 +1,8 @@
 package com.cafemetrix.cafelab.profiles.application.internal.queryservices;
 
 import com.cafemetrix.cafelab.profiles.domain.model.aggregates.Profile;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.CheckCafeteriaAvailabilityQuery;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.CheckEmailAvailabilityQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetAllProfilesQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByEmailQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByIamUserIdQuery;
@@ -55,5 +57,41 @@ public class ProfileQueryServiceImpl implements ProfileQueryService {
     @Override
     public List<Profile> handle(GetAllProfilesQuery query) {
         return profileRepository.findAll();
+    }
+
+    @Override
+    public boolean handle(CheckEmailAvailabilityQuery query) {
+        if (query.email() == null) {
+            return true;
+        }
+        String raw = query.email().trim();
+        if (raw.isEmpty()) {
+            return true;
+        }
+        String normalized = raw.toLowerCase(Locale.ROOT);
+        var existing = profileRepository.findByNormalizedEmail(normalized);
+        if (existing.isEmpty()) {
+            return true;
+        }
+        return query.excludeUserId() != null
+                && existing.get().getId().equals(query.excludeUserId());
+    }
+
+    @Override
+    public boolean handle(CheckCafeteriaAvailabilityQuery query) {
+        if (query.cafeteriaName() == null) {
+            return true;
+        }
+        String raw = query.cafeteriaName().trim();
+        if (raw.isEmpty()) {
+            return true;
+        }
+        String normalized = raw.toLowerCase(Locale.ROOT);
+        var existing = profileRepository.findByNormalizedCafeteriaName(normalized);
+        if (existing.isEmpty()) {
+            return true;
+        }
+        return query.excludeUserId() != null
+                && existing.get().getId().equals(query.excludeUserId());
     }
 }

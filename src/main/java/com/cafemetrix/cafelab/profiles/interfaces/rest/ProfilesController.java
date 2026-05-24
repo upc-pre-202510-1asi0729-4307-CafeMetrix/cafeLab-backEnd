@@ -2,12 +2,15 @@ package com.cafemetrix.cafelab.profiles.interfaces.rest;
 
 import com.cafemetrix.cafelab.profiles.domain.exceptions.ProfileCreationFailedException;
 import com.cafemetrix.cafelab.profiles.domain.exceptions.ProfileNotFoundException;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.CheckCafeteriaAvailabilityQuery;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.CheckEmailAvailabilityQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetAllProfilesQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByEmailQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByIdQuery;
 import com.cafemetrix.cafelab.profiles.domain.services.ProfileCommandService;
 import com.cafemetrix.cafelab.profiles.domain.services.ProfileQueryService;
 import com.cafemetrix.cafelab.profiles.interfaces.rest.resources.CreateProfileResource;
+import com.cafemetrix.cafelab.profiles.interfaces.rest.resources.ProfileAvailabilityResource;
 import com.cafemetrix.cafelab.profiles.interfaces.rest.resources.ProfileResource;
 import com.cafemetrix.cafelab.profiles.interfaces.rest.resources.UpdateProfileResource;
 import com.cafemetrix.cafelab.profiles.interfaces.rest.transform.CreateProfileCommandFromResourceAssembler;
@@ -79,6 +82,30 @@ public class ProfilesController {
         var profileEntity = profile.get();
         var profileResource = ProfileResourceFromEntityAssembler.toResourceFromEntity(profileEntity);
         return ResponseEntity.ok(profileResource);
+    }
+
+    @GetMapping("/check-email")
+    @Operation(summary = "Check if email is available for profile update")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Availability checked")})
+    public ResponseEntity<ProfileAvailabilityResource> checkEmailAvailability(
+            @RequestParam String email,
+            @RequestParam(required = false) Long excludeUserId) {
+        var available = profileQueryService.handle(
+                new CheckEmailAvailabilityQuery(email, excludeUserId));
+        return ResponseEntity.ok(new ProfileAvailabilityResource(available));
+    }
+
+    @GetMapping("/check-cafeteria")
+    @Operation(summary = "Check if cafeteria name is available for profile update")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Availability checked")})
+    public ResponseEntity<ProfileAvailabilityResource> checkCafeteriaAvailability(
+            @RequestParam String cafeteriaName,
+            @RequestParam(required = false) Long excludeUserId) {
+        var available = profileQueryService.handle(
+                new CheckCafeteriaAvailabilityQuery(cafeteriaName, excludeUserId));
+        return ResponseEntity.ok(new ProfileAvailabilityResource(available));
     }
 
     @GetMapping(params = "email")
