@@ -5,7 +5,8 @@ public record CreateEnvironmentThresholdCommand(
         Double minTemperature,
         Double maxTemperature,
         Double minHumidity,
-        Double maxHumidity
+        Double maxHumidity,
+        Integer syncIntervalSeconds
 ) {
     public CreateEnvironmentThresholdCommand {
         if (coffeeLotId == null) {

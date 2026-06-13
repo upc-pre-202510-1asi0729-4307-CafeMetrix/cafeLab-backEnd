@@ -45,7 +45,8 @@ public class EnvironmentThresholdCommandServiceImpl implements EnvironmentThresh
                 command.minTemperature(),
                 command.maxTemperature(),
                 command.minHumidity(),
-                command.maxHumidity()
+                command.maxHumidity(),
+                command.syncIntervalSeconds()
         );
 
         thresholdRepository.save(existingThreshold);
