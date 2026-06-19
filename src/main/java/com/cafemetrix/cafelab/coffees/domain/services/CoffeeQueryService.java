@@ -7,9 +7,6 @@ import com.cafemetrix.cafelab.coffees.domain.model.queries.GetCoffeeByIdQuery;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Coffee Query Service
- */
 public interface CoffeeQueryService {
     /**
      * Handle Get Coffee By ID Query

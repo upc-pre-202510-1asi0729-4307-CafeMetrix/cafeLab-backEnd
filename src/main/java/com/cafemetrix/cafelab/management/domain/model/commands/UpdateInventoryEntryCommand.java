@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.management.domain.model.commands;
 
 import java.time.LocalDateTime;
 
-/**
- * Command for updating an inventory entry
- */
 public record UpdateInventoryEntryCommand(
     Long inventoryEntryId,
     Long coffeeLotId,
@@ -19,4 +16,4 @@ public record UpdateInventoryEntryCommand(
         if (dateUsed == null) throw new IllegalArgumentException("DateUsed es requerido");
         if (finalProduct == null || finalProduct.isBlank()) throw new IllegalArgumentException("FinalProduct es requerido");
     }
-} 
+}

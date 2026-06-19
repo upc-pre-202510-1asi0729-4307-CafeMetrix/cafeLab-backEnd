@@ -12,9 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-/**
- * Profile Command Service Implementation
- */
 @Service
 public class ProfileCommandServiceImpl implements ProfileCommandService {
     private final ProfileRepository profileRepository;
@@ -30,7 +27,6 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
         this.eventPublisher = eventPublisher;
     }
 
-    // inherited javadoc
     @Override
     public Optional<Profile> handle(CreateProfileCommand command) {
         var emailAddress = new EmailAddress(command.email());
@@ -47,7 +43,7 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
 
     @Override
     public Optional<Profile> handle(UpdateProfileCommand command) {
-        var profile = profileRepository.findById(command.profileId());
+        var profile = profileRepository.findById(command.userId());
         if (profile.isEmpty()) {
             return Optional.empty();
         }

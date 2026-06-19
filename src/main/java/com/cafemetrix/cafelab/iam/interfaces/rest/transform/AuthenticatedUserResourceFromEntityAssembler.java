@@ -5,6 +5,6 @@ import com.cafemetrix.cafelab.iam.interfaces.rest.resources.AuthenticatedUserRes
 
 public class AuthenticatedUserResourceFromEntityAssembler {
     public static AuthenticatedUserResource toResourceFromEntity(User user, String token) {
-        return new AuthenticatedUserResource(user.getId(), user.getUsername(), token);
+        return new AuthenticatedUserResource(user.getId(), user.getEmail(), user.getRole(), token);
     }
 }

@@ -3,9 +3,6 @@ package com.cafemetrix.cafelab.profiles.interfaces.rest.transform;
 import com.cafemetrix.cafelab.profiles.domain.model.aggregates.Profile;
 import com.cafemetrix.cafelab.profiles.interfaces.rest.resources.ProfileResource;
 
-/**
- * Assembler to convert a Profile entity to a ProfileResource
- */
 public class ProfileResourceFromEntityAssembler {
     /**
      * Convert Profile entity to ProfileResource

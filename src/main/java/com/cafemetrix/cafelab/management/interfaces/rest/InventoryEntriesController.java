@@ -1,19 +1,26 @@
 package com.cafemetrix.cafelab.management.interfaces.rest;
 
+import com.cafemetrix.cafelab.management.domain.exceptions.InventoryEntryNotFoundException;
+import com.cafemetrix.cafelab.management.domain.model.aggregates.InventoryEntry;
 import com.cafemetrix.cafelab.management.interfaces.acl.ManagementContextFacade;
-import com.cafemetrix.cafelab.management.interfaces.rest.resources.InventoryEntryResource;
 import com.cafemetrix.cafelab.management.interfaces.rest.resources.CreateInventoryEntryResource;
+import com.cafemetrix.cafelab.management.interfaces.rest.resources.InventoryEntryResource;
 import com.cafemetrix.cafelab.management.interfaces.rest.resources.UpdateInventoryEntryResource;
+import com.cafemetrix.cafelab.management.interfaces.rest.transform.CreateInventoryEntryCommandFromResourceAssembler;
 import com.cafemetrix.cafelab.management.interfaces.rest.transform.UpdateInventoryEntryCommandFromResourceAssembler;
+import com.cafemetrix.cafelab.production.interfaces.acl.CoffeeproductionContextFacade;
+import com.cafemetrix.cafelab.iam.infrastructure.authorization.sfs.support.CurrentProfileIdResolver;
 import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,171 +28,184 @@ import java.util.stream.Collectors;
 @Tag(name = "Inventory Entries", description = "Inventory Entry Management Endpoints")
 public class InventoryEntriesController {
     private final ManagementContextFacade managementContextFacade;
+    private final CoffeeproductionContextFacade coffeeproductionContextFacade;
+    private final CurrentProfileIdResolver currentProfileIdResolver;
 
-    public InventoryEntriesController(ManagementContextFacade managementContextFacade) {
+    public InventoryEntriesController(
+            ManagementContextFacade managementContextFacade,
+            CoffeeproductionContextFacade coffeeproductionContextFacade,
+            CurrentProfileIdResolver currentProfileIdResolver) {
         this.managementContextFacade = managementContextFacade;
+        this.coffeeproductionContextFacade = coffeeproductionContextFacade;
+        this.currentProfileIdResolver = currentProfileIdResolver;
     }
 
-    @Operation(summary = "Create a new inventory entry")
-    @PostMapping
-    public ResponseEntity<?> createInventoryEntry(@RequestBody CreateInventoryEntryResource resource) {
-        var inventoryEntryId = managementContextFacade.createInventoryEntry(
-            resource.userId(), resource.coffeeLotId(), resource.quantityUsed(),
-            resource.dateUsed(), resource.finalProduct()
-        );
+    private Optional<Long> resolveCurrentUserId() {
+        return currentProfileIdResolver.resolveProfileId();
+    }
 
+    private ResponseEntity<?> forbidden(String message) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResource(message));
+    }
+
+    private ResponseEntity<?> unauthorized(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResource(message));
+    }
+
+    private boolean ownsCoffeeLot(Long coffeeLotId, Long currentUserId) {
+        return coffeeproductionContextFacade
+                .getCoffeeLotById(coffeeLotId)
+                .map(l -> l.getUserId().equals(currentUserId))
+                .orElse(false);
+    }
+
+    private boolean ownsInventoryEntry(Long inventoryEntryId, Long currentUserId) {
+        return managementContextFacade
+                .getInventoryEntryById(inventoryEntryId)
+                .map(e -> e.getUserId().equals(currentUserId))
+                .orElse(false);
+    }
+
+    private InventoryEntryResource toResource(InventoryEntry entry) {
+        return new InventoryEntryResource(
+                entry.getId(),
+                entry.getUserId(),
+                entry.getCoffeeLotId(),
+                entry.getQuantityUsed(),
+                entry.getDateUsed(),
+                entry.getFinalProduct());
+    }
+
+    @Operation(summary = "Registrar consumo (perfil desde JWT; descuenta stock del lote)")
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createInventoryEntry(@Valid @RequestBody CreateInventoryEntryResource resource) {
+        Optional<Long> ownerIdOpt = resolveCurrentUserId();
+        if (ownerIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        Long ownerId = ownerIdOpt.get();
+        if (!ownsCoffeeLot(resource.coffeeLotId(), ownerId)) {
+            return forbidden("Debe consumir de un lote de su cuenta");
+        }
+        var command =
+                CreateInventoryEntryCommandFromResourceAssembler.toCommandFromResource(ownerId, resource);
+        var inventoryEntryId = managementContextFacade.createInventoryEntry(command);
         if (inventoryEntryId == 0L) {
-            return ResponseEntity.badRequest()
-                .body(new MessageResource("No se pudo crear la entrada de inventario"));
+            throw new IllegalStateException("No se pudo crear la entrada de inventario");
         }
-
-        var inventoryEntries = managementContextFacade.getAllInventoryEntries();
-        var inventoryEntry = inventoryEntries.stream()
-            .filter(entry -> entry.getId().equals(inventoryEntryId))
-            .findFirst();
-
-        if (inventoryEntry.isEmpty()) {
-            return ResponseEntity.badRequest()
-                .body(new MessageResource("No se pudo obtener la entrada de inventario creada"));
+        var created = managementContextFacade.getInventoryEntryById(inventoryEntryId);
+        if (created.isEmpty()) {
+            throw new InventoryEntryNotFoundException(inventoryEntryId);
         }
-
-        var inventoryEntryResource = new InventoryEntryResource(
-            inventoryEntry.get().getId(),
-            inventoryEntry.get().getUserId(),
-            inventoryEntry.get().getCoffeeLotId(),
-            inventoryEntry.get().getQuantityUsed(),
-            inventoryEntry.get().getDateUsed(),
-            inventoryEntry.get().getFinalProduct()
-        );
-
-        return new ResponseEntity<>(inventoryEntryResource, HttpStatus.CREATED);
+        return new ResponseEntity<>(toResource(created.get()), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Get all inventory entries")
+    @Operation(summary = "Listar entradas del usuario autenticado")
     @GetMapping
-    public ResponseEntity<List<InventoryEntryResource>> getAllInventoryEntries() {
-        var inventoryEntries = managementContextFacade.getAllInventoryEntries();
-        var inventoryEntryResources = inventoryEntries.stream()
-            .map(entry -> new InventoryEntryResource(
-                entry.getId(),
-                entry.getUserId(),
-                entry.getCoffeeLotId(),
-                entry.getQuantityUsed(),
-                entry.getDateUsed(),
-                entry.getFinalProduct()
-            ))
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(inventoryEntryResources);
+    public ResponseEntity<?> getAllInventoryEntries() {
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        var list = managementContextFacade.getInventoryEntriesByUserId(userIdOpt.get());
+        return ResponseEntity.ok(list.stream().map(this::toResource).collect(Collectors.toList()));
     }
 
-    @Operation(summary = "Get inventory entries by user ID")
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<InventoryEntryResource>> getInventoryEntriesByUserId(@PathVariable Long userId) {
-        var inventoryEntries = managementContextFacade.getInventoryEntriesByUserId(userId);
-        var inventoryEntryResources = inventoryEntries.stream()
-            .map(entry -> new InventoryEntryResource(
-                entry.getId(),
-                entry.getUserId(),
-                entry.getCoffeeLotId(),
-                entry.getQuantityUsed(),
-                entry.getDateUsed(),
-                entry.getFinalProduct()
-            ))
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(inventoryEntryResources);
+    @Operation(summary = "Entradas por userId (solo el propio perfil)")
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<?> getInventoryEntriesByUserId(@PathVariable Long userId) {
+        Optional<Long> currentOpt = resolveCurrentUserId();
+        if (currentOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        if (!currentOpt.get().equals(userId)) {
+            return forbidden("No puede consultar entradas de otro perfil");
+        }
+        var list = managementContextFacade.getInventoryEntriesByUserId(userId);
+        return ResponseEntity.ok(list.stream().map(this::toResource).collect(Collectors.toList()));
     }
 
-    @Operation(summary = "Get inventory entries by coffee lot ID")
+    @Operation(summary = "Entradas por lote (el lote debe ser suyo)")
     @GetMapping("/coffee-lot/{coffeeLotId}")
-    public ResponseEntity<List<InventoryEntryResource>> getInventoryEntriesByCoffeeLotId(@PathVariable Long coffeeLotId) {
-        var inventoryEntries = managementContextFacade.getInventoryEntriesByCoffeeLotId(coffeeLotId);
-        var inventoryEntryResources = inventoryEntries.stream()
-            .map(entry -> new InventoryEntryResource(
-                entry.getId(),
-                entry.getUserId(),
-                entry.getCoffeeLotId(),
-                entry.getQuantityUsed(),
-                entry.getDateUsed(),
-                entry.getFinalProduct()
-            ))
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(inventoryEntryResources);
+    public ResponseEntity<?> getInventoryEntriesByCoffeeLotId(@PathVariable Long coffeeLotId) {
+        Optional<Long> currentOpt = resolveCurrentUserId();
+        if (currentOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        if (!ownsCoffeeLot(coffeeLotId, currentOpt.get())) {
+            return forbidden("No autorizado para consultar este lote");
+        }
+        var list = managementContextFacade.getInventoryEntriesByCoffeeLotId(coffeeLotId);
+        return ResponseEntity.ok(list.stream().map(this::toResource).collect(Collectors.toList()));
     }
 
-    @Operation(summary = "Get inventory entry by ID")
+    @Operation(summary = "Obtener entrada por id")
     @GetMapping("/{inventoryEntryId}")
     public ResponseEntity<?> getInventoryEntryById(@PathVariable Long inventoryEntryId) {
-        var inventoryEntry = managementContextFacade.getInventoryEntryById(inventoryEntryId);
-        
-        if (inventoryEntry.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new MessageResource("Entrada de inventario no encontrada"));
+        Optional<Long> currentOpt = resolveCurrentUserId();
+        if (currentOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
         }
-
-        var inventoryEntryResource = new InventoryEntryResource(
-            inventoryEntry.get().getId(),
-            inventoryEntry.get().getUserId(),
-            inventoryEntry.get().getCoffeeLotId(),
-            inventoryEntry.get().getQuantityUsed(),
-            inventoryEntry.get().getDateUsed(),
-            inventoryEntry.get().getFinalProduct()
-        );
-
-        return ResponseEntity.ok(inventoryEntryResource);
+        if (!ownsInventoryEntry(inventoryEntryId, currentOpt.get())) {
+            return forbidden("No autorizado para ver esta entrada");
+        }
+        var entry = managementContextFacade.getInventoryEntryById(inventoryEntryId);
+        if (entry.isEmpty()) {
+            throw new InventoryEntryNotFoundException(inventoryEntryId);
+        }
+        return ResponseEntity.ok(toResource(entry.get()));
     }
 
-    @Operation(summary = "Update an inventory entry")
-    @PutMapping("/{inventoryEntryId}")
+    @Operation(summary = "Actualizar entrada (reajusta stock de lotes)")
+    @PutMapping(value = "/{inventoryEntryId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateInventoryEntry(
-            @PathVariable Long inventoryEntryId,
-            @RequestBody UpdateInventoryEntryResource resource) {
-        
-        var updateInventoryEntryCommand = UpdateInventoryEntryCommandFromResourceAssembler.toCommandFromResource(inventoryEntryId, resource);
-        var updatedInventoryEntryId = managementContextFacade.updateInventoryEntry(
-            updateInventoryEntryCommand.inventoryEntryId(),
-            updateInventoryEntryCommand.coffeeLotId(),
-            updateInventoryEntryCommand.quantityUsed(),
-            updateInventoryEntryCommand.dateUsed(),
-            updateInventoryEntryCommand.finalProduct()
-        );
-
-        if (updatedInventoryEntryId == 0L) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new MessageResource("No se pudo actualizar la entrada de inventario"));
+            @PathVariable Long inventoryEntryId, @Valid @RequestBody UpdateInventoryEntryResource resource) {
+        Optional<Long> currentOpt = resolveCurrentUserId();
+        if (currentOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
         }
-
-        var inventoryEntries = managementContextFacade.getAllInventoryEntries();
-        var inventoryEntry = inventoryEntries.stream()
-            .filter(entry -> entry.getId().equals(updatedInventoryEntryId))
-            .findFirst();
-
-        if (inventoryEntry.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new MessageResource("No se pudo obtener la entrada de inventario actualizada"));
+        if (!ownsInventoryEntry(inventoryEntryId, currentOpt.get())) {
+            return forbidden("No autorizado para modificar esta entrada");
         }
-
-        var inventoryEntryResource = new InventoryEntryResource(
-            inventoryEntry.get().getId(),
-            inventoryEntry.get().getUserId(),
-            inventoryEntry.get().getCoffeeLotId(),
-            inventoryEntry.get().getQuantityUsed(),
-            inventoryEntry.get().getDateUsed(),
-            inventoryEntry.get().getFinalProduct()
-        );
-
-        return ResponseEntity.ok(inventoryEntryResource);
+        if (!ownsCoffeeLot(resource.coffeeLotId(), currentOpt.get())) {
+            return forbidden("Debe vincular la entrada a un lote de su cuenta");
+        }
+        var command =
+                UpdateInventoryEntryCommandFromResourceAssembler.toCommandFromResource(
+                        inventoryEntryId, resource);
+        var updatedId =
+                managementContextFacade.updateInventoryEntry(
+                        currentOpt.get(),
+                        command.inventoryEntryId(),
+                        command.coffeeLotId(),
+                        command.quantityUsed(),
+                        command.dateUsed(),
+                        command.finalProduct());
+        if (updatedId == 0L) {
+            throw new InventoryEntryNotFoundException(inventoryEntryId);
+        }
+        var updated = managementContextFacade.getInventoryEntryById(updatedId);
+        if (updated.isEmpty()) {
+            throw new InventoryEntryNotFoundException(updatedId);
+        }
+        return ResponseEntity.ok(toResource(updated.get()));
     }
 
-    @Operation(summary = "Delete an inventory entry")
+    @Operation(summary = "Eliminar entrada (restaura stock al lote)")
     @DeleteMapping("/{inventoryEntryId}")
     public ResponseEntity<?> deleteInventoryEntry(@PathVariable Long inventoryEntryId) {
-        var deleted = managementContextFacade.deleteInventoryEntry(inventoryEntryId);
-        
+        Optional<Long> currentOpt = resolveCurrentUserId();
+        if (currentOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        if (!ownsInventoryEntry(inventoryEntryId, currentOpt.get())) {
+            return forbidden("No autorizado para eliminar esta entrada");
+        }
+        boolean deleted =
+                managementContextFacade.deleteInventoryEntry(currentOpt.get(), inventoryEntryId);
         if (deleted) {
             return ResponseEntity.ok(new MessageResource("Entrada de inventario eliminada exitosamente"));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new MessageResource("Entrada de inventario no encontrada"));
         }
+        throw new InventoryEntryNotFoundException(inventoryEntryId);
     }
-} 
+}

@@ -7,11 +7,8 @@ import com.cafemetrix.cafelab.production.domain.model.commands.UpdateSupplierCom
 
 import java.util.Optional;
 
-/**
- * Supplier Command Service Interface
- */
 public interface SupplierCommandService {
     Optional<Supplier> handle(CreateSupplierCommand command);
     Optional<Supplier> handle(UpdateSupplierCommand command);
     boolean handle(DeleteSupplierCommand command);
-} 
+}

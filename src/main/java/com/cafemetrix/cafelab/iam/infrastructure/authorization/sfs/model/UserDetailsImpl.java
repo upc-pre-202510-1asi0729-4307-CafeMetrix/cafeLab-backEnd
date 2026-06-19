@@ -34,10 +34,6 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(User user) {
-        return new UserDetailsImpl(
-                user.getUsername(),
-                user.getPassword(),
-                Collections.emptyList());
+        return new UserDetailsImpl(user.getEmail(), user.getPassword(), Collections.emptyList());
     }
-
 }

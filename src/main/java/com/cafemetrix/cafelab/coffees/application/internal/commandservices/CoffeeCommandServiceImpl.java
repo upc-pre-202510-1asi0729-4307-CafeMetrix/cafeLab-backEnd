@@ -9,9 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-/**
- * Coffee Command Service Implementation
- */
 @Service
 public class CoffeeCommandServiceImpl implements CoffeeCommandService {
     private final CoffeeRepository coffeeRepository;
@@ -25,7 +22,6 @@ public class CoffeeCommandServiceImpl implements CoffeeCommandService {
         this.coffeeRepository = coffeeRepository;
     }
 
-    // inherited javadoc
     @Override
     public Optional<Coffee> handle(CreateCoffeeCommand command) {
         var coffeeName = new CoffeeName(command.name());

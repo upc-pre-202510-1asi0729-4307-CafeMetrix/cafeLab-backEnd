@@ -3,9 +3,6 @@ package com.cafemetrix.cafelab.profiles.interfaces.rest.transform;
 import com.cafemetrix.cafelab.profiles.domain.model.commands.CreateProfileCommand;
 import com.cafemetrix.cafelab.profiles.interfaces.rest.resources.CreateProfileResource;
 
-/**
- * Assembler to create a CreateProfileCommand command from a resource
- */
 public class CreateProfileCommandFromResourceAssembler {
     /**
      * Create a CreateProfileCommand command from a resource

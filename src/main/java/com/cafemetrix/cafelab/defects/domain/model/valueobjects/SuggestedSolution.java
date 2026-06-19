@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.defects.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * SuggestedSolution Value Object
- */
 @Embeddable
 public record SuggestedSolution(String value) {
     public SuggestedSolution() {

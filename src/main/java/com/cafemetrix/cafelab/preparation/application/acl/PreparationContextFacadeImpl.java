@@ -4,16 +4,25 @@ import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Ingredient;
 import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Portfolio;
 import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Recipe;
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreateIngredientCommand;
-import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateIngredientCommand;
-import com.cafemetrix.cafelab.preparation.domain.model.commands.DeleteIngredientCommand;
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreatePortfolioCommand;
-import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdatePortfolioCommand;
-import com.cafemetrix.cafelab.preparation.domain.model.commands.DeletePortfolioCommand;
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreateRecipeCommand;
-import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateRecipeCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.DeleteIngredientCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.DeletePortfolioCommand;
 import com.cafemetrix.cafelab.preparation.domain.model.commands.DeleteRecipeCommand;
-import com.cafemetrix.cafelab.preparation.domain.model.queries.*;
-import com.cafemetrix.cafelab.preparation.domain.services.*;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateIngredientCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdatePortfolioCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateRecipeCommand;
+import com.cafemetrix.cafelab.preparation.domain.model.queries.GetIngredientsByRecipeIdQuery;
+import com.cafemetrix.cafelab.preparation.domain.model.queries.GetPortfolioByIdForUserQuery;
+import com.cafemetrix.cafelab.preparation.domain.model.queries.GetPortfoliosByUserIdQuery;
+import com.cafemetrix.cafelab.preparation.domain.model.queries.GetRecipeByIdForUserQuery;
+import com.cafemetrix.cafelab.preparation.domain.model.queries.GetRecipesByUserIdQuery;
+import com.cafemetrix.cafelab.preparation.domain.services.IngredientCommandService;
+import com.cafemetrix.cafelab.preparation.domain.services.IngredientQueryService;
+import com.cafemetrix.cafelab.preparation.domain.services.PortfolioCommandService;
+import com.cafemetrix.cafelab.preparation.domain.services.PortfolioQueryService;
+import com.cafemetrix.cafelab.preparation.domain.services.RecipeCommandService;
+import com.cafemetrix.cafelab.preparation.domain.services.RecipeQueryService;
 import com.cafemetrix.cafelab.preparation.interfaces.acl.PreparationContextFacade;
 import org.springframework.stereotype.Service;
 
@@ -45,39 +54,28 @@ public class PreparationContextFacadeImpl implements PreparationContextFacade {
     }
 
     @Override
-    public Long createRecipe(Long userId, String name, String imageUrl, String extractionMethod,
-                           String extractionCategory, String ratio, Long cuppingSessionId, Long portfolioId, 
-                           Integer preparationTime, String steps, String tips, String cupping, String grindSize) {
-        var createRecipeCommand = new CreateRecipeCommand(userId, name, imageUrl, extractionMethod,
-                extractionCategory, ratio, cuppingSessionId, portfolioId, preparationTime, steps, tips, cupping, grindSize);
-        var recipe = recipeCommandService.handle(createRecipeCommand);
-        return recipe.map(Recipe::getId).orElse(0L);
+    public Optional<Recipe> createRecipe(CreateRecipeCommand command) {
+        return recipeCommandService.handle(command);
     }
 
     @Override
-    public Long updateRecipe(Long recipeId, String name, String imageUrl, String extractionMethod,
-                           String extractionCategory, String ratio, Long cuppingSessionId, Long portfolioId, 
-                           Integer preparationTime, String steps, String tips, String cupping, String grindSize) {
-        var updateRecipeCommand = new UpdateRecipeCommand(recipeId, name, imageUrl, extractionMethod,
-                extractionCategory, ratio, cuppingSessionId, portfolioId, preparationTime, steps, tips, cupping, grindSize);
-        var recipe = recipeCommandService.handle(updateRecipeCommand);
-        return recipe.map(Recipe::getId).orElse(0L);
+    public Optional<Recipe> updateRecipe(UpdateRecipeCommand command) {
+        return recipeCommandService.handle(command);
     }
 
     @Override
-    public boolean deleteRecipe(Long recipeId) {
-        var deleteRecipeCommand = new DeleteRecipeCommand(recipeId);
-        return recipeCommandService.handle(deleteRecipeCommand);
+    public boolean deleteRecipe(Long recipeId, Long userId) {
+        return recipeCommandService.handle(new DeleteRecipeCommand(recipeId, userId));
     }
 
     @Override
-    public List<Recipe> getAllRecipes() {
-        return recipeQueryService.handle(new GetAllRecipesQuery());
+    public List<Recipe> getRecipesByUserId(Long userId) {
+        return recipeQueryService.handle(new GetRecipesByUserIdQuery(userId));
     }
 
     @Override
-    public Optional<Recipe> getRecipeById(Long recipeId) {
-        return recipeQueryService.handle(new GetRecipeByIdQuery(recipeId));
+    public Optional<Recipe> getRecipeByIdForUser(Long recipeId, Long userId) {
+        return recipeQueryService.handle(new GetRecipeByIdForUserQuery(recipeId, userId));
     }
 
     @Override
@@ -107,35 +105,26 @@ public class PreparationContextFacadeImpl implements PreparationContextFacade {
 
     @Override
     public Long createPortfolio(Long userId, String name) {
-        var createPortfolioCommand = new CreatePortfolioCommand(userId, name);
-        return portfolioCommandService.handle(createPortfolioCommand);
+        return portfolioCommandService.handle(new CreatePortfolioCommand(userId, name));
     }
 
     @Override
-    public Long updatePortfolio(Long portfolioId, String name) {
-        var updatePortfolioCommand = new UpdatePortfolioCommand(portfolioId, name);
-        var portfolio = portfolioCommandService.handle(updatePortfolioCommand);
-        return portfolio.map(Portfolio::getId).orElse(0L);
+    public Optional<Portfolio> updatePortfolio(UpdatePortfolioCommand command) {
+        return portfolioCommandService.handle(command);
     }
 
     @Override
-    public boolean deletePortfolio(Long portfolioId) {
-        var deletePortfolioCommand = new DeletePortfolioCommand(portfolioId);
-        return portfolioCommandService.handle(deletePortfolioCommand);
-    }
-
-    @Override
-    public List<Portfolio> getAllPortfolios() {
-        return portfolioQueryService.handle(new GetAllPortfoliosQuery());
-    }
-
-    @Override
-    public Optional<Portfolio> getPortfolioById(Long portfolioId) {
-        return portfolioQueryService.handle(new GetPortfolioByIdQuery(portfolioId));
+    public boolean deletePortfolio(Long portfolioId, Long userId) {
+        return portfolioCommandService.handle(new DeletePortfolioCommand(portfolioId, userId));
     }
 
     @Override
     public List<Portfolio> getPortfoliosByUserId(Long userId) {
         return portfolioQueryService.handle(new GetPortfoliosByUserIdQuery(userId));
     }
-} 
+
+    @Override
+    public Optional<Portfolio> getPortfolioByIdForUser(Long portfolioId, Long userId) {
+        return portfolioQueryService.handle(new GetPortfolioByIdForUserQuery(portfolioId, userId));
+    }
+}

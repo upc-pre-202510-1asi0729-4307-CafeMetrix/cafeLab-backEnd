@@ -7,11 +7,8 @@ import com.cafemetrix.cafelab.preparation.domain.model.commands.DeleteIngredient
 
 import java.util.Optional;
 
-/**
- * Ingredient Command Service Interface
- */
 public interface IngredientCommandService {
     Optional<Ingredient> handle(CreateIngredientCommand command);
     Optional<Ingredient> handle(UpdateIngredientCommand command);
     boolean handle(DeleteIngredientCommand command);
-} 
+}

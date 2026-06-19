@@ -10,9 +10,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * CoffeeLot Aggregate Root
- */
+/** Lote; {@code userId} persiste en {@code user_id} (FK a profiles.id). */
 @Entity
 @Table(name = "coffee_lots")
 public class CoffeeLot extends AuditableAbstractAggregateRoot<CoffeeLot> {
@@ -56,14 +54,10 @@ public class CoffeeLot extends AuditableAbstractAggregateRoot<CoffeeLot> {
     @Column(name = "certification", length = 100)
     private List<String> certifications = new ArrayList<>();
 
-    /**
-     * Constructor por defecto
-     */
+    
     public CoffeeLot() {}
 
-    /**
-     * Constructor principal
-     */
+    
     public CoffeeLot(Long userId, Long supplierId, String lotName, String coffeeType, 
                     String processingMethod, Integer altitude, Double weight, 
                     String origin, String status, List<String> certifications) {
@@ -79,9 +73,7 @@ public class CoffeeLot extends AuditableAbstractAggregateRoot<CoffeeLot> {
         this.certifications = certifications != null ? new ArrayList<>(certifications) : new ArrayList<>();
     }
 
-    /**
-     * Constructor con comando
-     */
+    
     public CoffeeLot(CreateCoffeeLotCommand command) {
         this.userId = command.userId();
         this.supplierId = command.supplierId();
@@ -95,9 +87,7 @@ public class CoffeeLot extends AuditableAbstractAggregateRoot<CoffeeLot> {
         this.certifications = command.certifications() != null ? new ArrayList<>(command.certifications()) : new ArrayList<>();
     }
 
-    /**
-     * Método para actualizar el lote de café
-     */
+    
     public CoffeeLot update(UpdateCoffeeLotCommand command) {
         this.lotName = new CoffeeLotName(command.lotName());
         this.coffeeType = new CoffeeType(command.coffeeType());
@@ -110,7 +100,6 @@ public class CoffeeLot extends AuditableAbstractAggregateRoot<CoffeeLot> {
         return this;
     }
 
-    // Getters
     public String getLotName() { return lotName.value(); }
     public String getCoffeeType() { return coffeeType.value(); }
     public String getProcessingMethod() { return processingMethod.value(); }
@@ -119,4 +108,4 @@ public class CoffeeLot extends AuditableAbstractAggregateRoot<CoffeeLot> {
     public String getOrigin() { return origin.value(); }
     public String getStatus() { return status.value(); }
     public List<String> getCertifications() { return new ArrayList<>(certifications); }
-} 
+}

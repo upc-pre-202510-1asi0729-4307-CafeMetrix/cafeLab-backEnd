@@ -7,11 +7,8 @@ import com.cafemetrix.cafelab.production.domain.model.commands.UpdateCoffeeLotCo
 
 import java.util.Optional;
 
-/**
- * CoffeeLot Command Service Interface
- */
 public interface CoffeeLotCommandService {
     Optional<CoffeeLot> handle(CreateCoffeeLotCommand command);
     Optional<CoffeeLot> handle(UpdateCoffeeLotCommand command);
     boolean handle(DeleteCoffeeLotCommand command);
-} 
+}

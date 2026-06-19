@@ -118,6 +118,13 @@ public class CoffeeproductionContextFacadeImpl implements CoffeeproductionContex
     }
 
     @Override
+    public boolean existsCoffeeLotById(Long coffeeLotId) {
+        var getCoffeeLotByIdQuery = new GetCoffeeLotByIdQuery(coffeeLotId);
+        var coffeeLot = coffeeLotQueryService.handle(getCoffeeLotByIdQuery);
+        return coffeeLot.isPresent();
+    }
+
+    @Override
     public Long createRoastProfile(Long userId, String name, String type, Integer duration, 
                                  Double tempStart, Double tempEnd, Long coffeeLotId, Boolean isFavorite) {
         var createRoastProfileCommand = new CreateRoastProfileCommand(userId, name, type, duration, 
@@ -160,4 +167,4 @@ public class CoffeeproductionContextFacadeImpl implements CoffeeproductionContex
     public List<RoastProfile> getRoastProfilesByCoffeeLotId(Long coffeeLotId) {
         return roastProfileQueryService.handle(new GetRoastProfilesByCoffeeLotIdQuery(coffeeLotId));
     }
-} 
+}

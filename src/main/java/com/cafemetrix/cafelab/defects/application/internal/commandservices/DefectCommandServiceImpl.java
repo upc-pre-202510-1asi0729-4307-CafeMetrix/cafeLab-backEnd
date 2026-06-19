@@ -8,9 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-/**
- * Defect Command Service Implementation
- */
 @Service
 public class DefectCommandServiceImpl implements DefectCommandService {
     private final DefectRepository defectRepository;
@@ -24,7 +21,6 @@ public class DefectCommandServiceImpl implements DefectCommandService {
         this.defectRepository = defectRepository;
     }
 
-    // inherited javadoc
     @Override
     public Optional<Defect> handle(CreateDefectCommand command) {
         var defect = new Defect(command);

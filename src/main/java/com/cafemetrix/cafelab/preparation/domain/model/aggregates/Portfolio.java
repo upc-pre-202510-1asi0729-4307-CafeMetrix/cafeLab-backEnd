@@ -7,14 +7,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 /**
- * Portfolio Aggregate Root
+ * Portafolio; {@code userId} persiste en columna {@code user_id} (FK a profiles.id).
  */
 @Entity
 @Table(name = "portfolios")
 public class Portfolio extends AuditableAbstractAggregateRoot<Portfolio> {
-    
+
     @Getter
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "name", length = 100, nullable = false)
@@ -32,9 +32,6 @@ public class Portfolio extends AuditableAbstractAggregateRoot<Portfolio> {
         this.name = command.name();
     }
 
-    /**
-     * Método para actualizar el portfolio
-     */
     public Portfolio update(UpdatePortfolioCommand command) {
         this.name = command.name();
         return this;
@@ -43,4 +40,4 @@ public class Portfolio extends AuditableAbstractAggregateRoot<Portfolio> {
     public String getName() {
         return name;
     }
-} 
+}

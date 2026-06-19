@@ -1,8 +1,5 @@
 package com.cafemetrix.cafelab.preparation.domain.model.commands;
 
-/**
- * Command for creating a new ingredient
- */
 public record CreateIngredientCommand(
     Long recipeId,
     String name,
@@ -15,4 +12,4 @@ public record CreateIngredientCommand(
         if (amount == null) throw new IllegalArgumentException("Amount es requerido");
         if (unit == null || unit.isBlank()) throw new IllegalArgumentException("Unit es requerido");
     }
-} 
+}

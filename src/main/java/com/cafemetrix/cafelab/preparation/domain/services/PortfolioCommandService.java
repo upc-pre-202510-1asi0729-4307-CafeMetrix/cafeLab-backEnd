@@ -7,11 +7,8 @@ import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Portfolio;
 
 import java.util.Optional;
 
-/**
- * Interface for Portfolio Command Service
- */
 public interface PortfolioCommandService {
     Long handle(CreatePortfolioCommand command);
     Optional<Portfolio> handle(UpdatePortfolioCommand command);
     boolean handle(DeletePortfolioCommand command);
-} 
+}

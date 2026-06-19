@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.coffees.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * CoffeeName Value Object
- */
 @Embeddable
 public record CoffeeName(String value) {
     public CoffeeName() {

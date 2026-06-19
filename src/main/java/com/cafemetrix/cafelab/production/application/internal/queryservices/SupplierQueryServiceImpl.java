@@ -33,4 +33,4 @@ public class SupplierQueryServiceImpl implements SupplierQueryService {
     public List<Supplier> handle(GetSuppliersByUserIdQuery query) {
         return supplierRepository.findByUserId(query.userId());
     }
-} 
+}

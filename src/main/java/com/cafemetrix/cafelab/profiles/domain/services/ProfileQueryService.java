@@ -1,16 +1,16 @@
 package com.cafemetrix.cafelab.profiles.domain.services;
 
 import com.cafemetrix.cafelab.profiles.domain.model.aggregates.Profile;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.CheckCafeteriaAvailabilityQuery;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.CheckEmailAvailabilityQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetAllProfilesQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByEmailQuery;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByIamUserIdQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByIdQuery;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Profile Query Service
- */
 public interface ProfileQueryService {
     /**
      * Handle Get Profile By ID Query
@@ -29,10 +29,19 @@ public interface ProfileQueryService {
     Optional<Profile> handle(GetProfileByEmailQuery query);
 
     /**
+     * Perfil asociado al usuario IAM (columna {@code profiles.user_id}).
+     */
+    Optional<Profile> handle(GetProfileByIamUserIdQuery query);
+
+    /**
      * Handle Get All Profiles Query
      *
      * @param query The {@link GetAllProfilesQuery} Query
      * @return A list of {@link Profile} instances
      */
     List<Profile> handle(GetAllProfilesQuery query);
+
+    boolean handle(CheckEmailAvailabilityQuery query);
+
+    boolean handle(CheckCafeteriaAvailabilityQuery query);
 }

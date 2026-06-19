@@ -1,7 +1,7 @@
 package com.cafemetrix.cafelab.profiles.domain.model.commands;
 
 public record UpdateProfileCommand(
-        Long profileId,
+        Long userId,
         String name,
         String email,
         String cafeteriaName,

@@ -1,8 +1,5 @@
 package com.cafemetrix.cafelab.profiles.interfaces.acl;
 
-/**
- * Facade for the profiles context
- */
 public interface ProfilesContextFacade {
     /**
      * Create a profile
@@ -23,10 +20,10 @@ public interface ProfilesContextFacade {
     Long createProfile(String name, String email, String password, String role, String cafeteriaName, String experience, String profilePicture, String paymentMethod, boolean isFirstLogin, String plan, boolean hasPlan);
 
     /**
-     * Fetch the profile id by email
+     * Resuelve {@code profiles.id} por email (mismo identificador que {@code userId} en el resto de bounded contexts).
      *
-     * @param email Email of the profile to fetch
-     * @return The id of the profile if found, 0 otherwise
+     * @param email Email del perfil
+     * @return El id si existe, 0 en caso contrario
      */
-    Long fetchProfileIdByEmail(String email);
+    Long fetchUserIdByEmail(String email);
 }

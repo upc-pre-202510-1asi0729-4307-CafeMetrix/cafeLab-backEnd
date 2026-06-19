@@ -1,8 +1,5 @@
 package com.cafemetrix.cafelab.profiles.interfaces.rest.resources;
 
-/**
- * Resource for creating a new profile
- */
 public record CreateProfileResource(
         String name,
         String email,

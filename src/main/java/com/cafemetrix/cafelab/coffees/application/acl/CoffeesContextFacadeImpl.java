@@ -26,7 +26,7 @@ public class CoffeesContextFacadeImpl implements CoffeesContextFacade {
 
     @Override
     public Long fetchCoffeeIdByName(String name) {
-        var getCoffeeByIdQuery = new GetCoffeeByIdQuery(0L); // Aquí necesitarías implementar la lógica para buscar por nombre
+        var getCoffeeByIdQuery = new GetCoffeeByIdQuery(0L);
         var coffee = coffeeQueryService.handle(getCoffeeByIdQuery);
         return coffee.isEmpty() ? 0L : coffee.get().getId();
     }

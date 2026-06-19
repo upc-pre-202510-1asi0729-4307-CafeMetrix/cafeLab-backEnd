@@ -1,10 +1,11 @@
 package com.cafemetrix.cafelab.defects.domain.model.commands;
 
-/**
- * Create Defect Command
- */
 public record CreateDefectCommand(
-        Long coffeeId,
+        Long userId,
+        String coffeeDisplayName,
+        String coffeeRegion,
+        String coffeeVariety,
+        Double coffeeTotalWeight,
         String name,
         String defectType,
         Double defectWeight,

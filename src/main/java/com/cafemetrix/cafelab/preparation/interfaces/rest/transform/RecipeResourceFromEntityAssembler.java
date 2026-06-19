@@ -2,15 +2,12 @@ package com.cafemetrix.cafelab.preparation.interfaces.rest.transform;
 
 import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Recipe;
 import com.cafemetrix.cafelab.preparation.domain.model.aggregates.Ingredient;
-import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.RecipeResource;
-import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.IngredientResource;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.dto.RecipeResource;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.dto.IngredientResource;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Assembler for transforming Recipe entities to RecipeResource
- */
 public class RecipeResourceFromEntityAssembler {
     public static RecipeResource toResourceFromEntity(Recipe entity, List<Ingredient> ingredients) {
         List<IngredientResource> ingredientResources = ingredients.stream()
@@ -42,4 +39,4 @@ public class RecipeResourceFromEntityAssembler {
             ingredientResources
         );
     }
-} 
+}

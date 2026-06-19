@@ -1,79 +1,100 @@
 package com.cafemetrix.cafelab.defects.interfaces.rest;
 
-import com.cafemetrix.cafelab.defects.domain.model.queries.GetAllDefectsQuery;
-import com.cafemetrix.cafelab.defects.domain.model.queries.GetDefectsByCoffeeIdQuery;
+import com.cafemetrix.cafelab.defects.domain.exceptions.DefectNotFoundException;
+import com.cafemetrix.cafelab.defects.domain.model.queries.GetDefectByIdForUserQuery;
+import com.cafemetrix.cafelab.defects.domain.model.queries.GetDefectsByUserIdQuery;
 import com.cafemetrix.cafelab.defects.domain.services.DefectCommandService;
 import com.cafemetrix.cafelab.defects.domain.services.DefectQueryService;
 import com.cafemetrix.cafelab.defects.interfaces.rest.resources.CreateDefectResource;
 import com.cafemetrix.cafelab.defects.interfaces.rest.resources.DefectResource;
 import com.cafemetrix.cafelab.defects.interfaces.rest.transform.CreateDefectCommandFromResourceAssembler;
 import com.cafemetrix.cafelab.defects.interfaces.rest.transform.DefectResourceFromEntityAssembler;
+import com.cafemetrix.cafelab.iam.infrastructure.authorization.sfs.support.CurrentProfileIdResolver;
+import com.cafemetrix.cafelab.shared.interfaces.rest.resources.MessageResource;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-/**
- * DefectsController
- */
 @RestController
 @RequestMapping(value = "/api/v1/defects", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Defects", description = "Available Defect Endpoints")
+@Tag(name = "Defects", description = "Registro de defectos (snapshot de café + defecto)")
 public class DefectsController {
     private final DefectCommandService defectCommandService;
     private final DefectQueryService defectQueryService;
+    private final CurrentProfileIdResolver currentProfileIdResolver;
 
-    public DefectsController(DefectCommandService defectCommandService, DefectQueryService defectQueryService) {
+    public DefectsController(
+            DefectCommandService defectCommandService,
+            DefectQueryService defectQueryService,
+            CurrentProfileIdResolver currentProfileIdResolver) {
         this.defectCommandService = defectCommandService;
         this.defectQueryService = defectQueryService;
+        this.currentProfileIdResolver = currentProfileIdResolver;
     }
 
-    @PostMapping
-    @Operation(summary = "Create a new defect")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Defect created"),
-            @ApiResponse(responseCode = "400", description = "Bad request")})
-    public ResponseEntity<DefectResource> createDefect(@RequestBody CreateDefectResource resource) {
-        var createDefectCommand = CreateDefectCommandFromResourceAssembler.toCommandFromResource(resource);
-        var defect = defectCommandService.handle(createDefectCommand);
-        if (defect.isEmpty()) return ResponseEntity.badRequest().build();
-        var createdDefect = defect.get();
-        var defectResource = DefectResourceFromEntityAssembler.toResourceFromEntity(createdDefect);
-        return new ResponseEntity<>(defectResource, HttpStatus.CREATED);
+    private Optional<Long> resolveCurrentUserId() {
+        return currentProfileIdResolver.resolveProfileId();
     }
 
-    @GetMapping("/by-coffee/{coffeeId}")
-    @Operation(summary = "Get all defects by coffee ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Defects found"),
-            @ApiResponse(responseCode = "404", description = "Defects not found")})
-    public ResponseEntity<List<DefectResource>> getDefectsByCoffeeId(@PathVariable Long coffeeId) {
-        var getDefectsByCoffeeIdQuery = new GetDefectsByCoffeeIdQuery(coffeeId);
-        var defects = defectQueryService.handle(getDefectsByCoffeeIdQuery);
-        if (defects.isEmpty()) return ResponseEntity.notFound().build();
-        var defectResources = defects.stream()
-                .map(DefectResourceFromEntityAssembler::toResourceFromEntity)
-                .toList();
-        return ResponseEntity.ok(defectResources);
+    private ResponseEntity<?> unauthorized(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResource(message));
+    }
+
+    private ResponseEntity<?> forbidden(String message) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResource(message));
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Crear registro de defecto (userId desde JWT)")
+    public ResponseEntity<?> createDefect(@RequestBody CreateDefectResource resource) {
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        try {
+            var command = CreateDefectCommandFromResourceAssembler.toCommandFromResource(userIdOpt.get(), resource);
+            var defect = defectCommandService.handle(command);
+            if (defect.isEmpty()) {
+                return ResponseEntity.badRequest().body(new MessageResource("No se pudo crear el defecto"));
+            }
+            var defectResource = DefectResourceFromEntityAssembler.toResourceFromEntity(defect.get());
+            return new ResponseEntity<>(defectResource, HttpStatus.CREATED);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(new MessageResource(ex.getMessage()));
+        }
     }
 
     @GetMapping
-    @Operation(summary = "Get all defects")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Defects found"),
-            @ApiResponse(responseCode = "404", description = "Defects not found")})
-    public ResponseEntity<List<DefectResource>> getAllDefects() {
-        var defects = defectQueryService.handle(new GetAllDefectsQuery());
-        if (defects.isEmpty()) return ResponseEntity.notFound().build();
-        var defectResources = defects.stream()
+    @Operation(summary = "Listar defectos del perfil autenticado")
+    public ResponseEntity<?> getDefectsForCurrentProfile() {
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        var defects = defectQueryService.handle(new GetDefectsByUserIdQuery(userIdOpt.get()));
+        var resources = defects.stream()
                 .map(DefectResourceFromEntityAssembler::toResourceFromEntity)
-                .toList();
-        return ResponseEntity.ok(defectResources);
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(resources);
+    }
+
+    @GetMapping("/{defectId}")
+    @Operation(summary = "Obtener defecto por id (solo si pertenece al perfil)")
+    public ResponseEntity<?> getDefectById(@PathVariable Long defectId) {
+        Optional<Long> userIdOpt = resolveCurrentUserId();
+        if (userIdOpt.isEmpty()) {
+            return unauthorized("Usuario no autenticado o perfil no encontrado");
+        }
+        var defect = defectQueryService.handle(new GetDefectByIdForUserQuery(defectId, userIdOpt.get()));
+        if (defect.isEmpty()) {
+            throw new DefectNotFoundException(defectId);
+        }
+        return ResponseEntity.ok(DefectResourceFromEntityAssembler.toResourceFromEntity(defect.get()));
     }
 }

@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-/**
- * ExtractionCategory Enum
- */
 public enum ExtractionCategory {
     COFFEE("coffee"),
     ESPRESSO("espresso");
@@ -27,14 +24,12 @@ public enum ExtractionCategory {
             return null;
         }
         
-        // Primero intentamos con el valor exacto
         for (ExtractionCategory category : ExtractionCategory.values()) {
             if (category.value.equalsIgnoreCase(text)) {
                 return category;
             }
         }
         
-        // Si no funciona, intentamos con el nombre del enum
         try {
             return valueOf(text.toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -59,4 +54,4 @@ public enum ExtractionCategory {
             return dbData == null ? null : ExtractionCategory.fromString(dbData);
         }
     }
-} 
+}

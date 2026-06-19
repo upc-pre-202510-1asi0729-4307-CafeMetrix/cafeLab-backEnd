@@ -5,9 +5,6 @@ import com.cafemetrix.cafelab.coffees.domain.model.commands.CreateCoffeeCommand;
 
 import java.util.Optional;
 
-/**
- * Coffee Command Service
- */
 public interface CoffeeCommandService {
     /**
      * Handle Create Coffee Command

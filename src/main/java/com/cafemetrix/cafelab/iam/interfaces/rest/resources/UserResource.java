@@ -1,4 +1,5 @@
 package com.cafemetrix.cafelab.iam.interfaces.rest.resources;
 
-public record UserResource(Long id, String username) {
-}
+import java.util.Date;
+
+public record UserResource(Long userId, String email, String role, Date createdAt, Date updatedAt) {}

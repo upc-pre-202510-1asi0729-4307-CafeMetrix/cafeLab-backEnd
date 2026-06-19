@@ -1,11 +1,8 @@
 package com.cafemetrix.cafelab.preparation.interfaces.rest.transform;
 
 import com.cafemetrix.cafelab.preparation.domain.model.commands.CreateIngredientCommand;
-import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.CreateIngredientResource;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.dto.CreateIngredientResource;
 
-/**
- * Assembler for transforming CreateIngredientResource to CreateIngredientCommand
- */
 public class CreateIngredientCommandFromResourceAssembler {
     public static CreateIngredientCommand toCommandFromResource(CreateIngredientResource resource) {
         return new CreateIngredientCommand(
@@ -15,4 +12,4 @@ public class CreateIngredientCommandFromResourceAssembler {
             resource.unit()
         );
     }
-} 
+}

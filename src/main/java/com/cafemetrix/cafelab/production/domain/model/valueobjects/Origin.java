@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.production.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * Origin Value Object
- */
 @Embeddable
 public record Origin(String value) {
     public Origin {
@@ -19,4 +16,4 @@ public record Origin(String value) {
     public Origin() {
         this(null);
     }
-} 
+}

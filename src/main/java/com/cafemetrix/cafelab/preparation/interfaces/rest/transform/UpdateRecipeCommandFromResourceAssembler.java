@@ -1,14 +1,13 @@
 package com.cafemetrix.cafelab.preparation.interfaces.rest.transform;
 
 import com.cafemetrix.cafelab.preparation.domain.model.commands.UpdateRecipeCommand;
-import com.cafemetrix.cafelab.preparation.interfaces.rest.resources.UpdateRecipeResource;
+import com.cafemetrix.cafelab.preparation.interfaces.rest.dto.UpdateRecipeResource;
 
-/**
- * Assembler for transforming UpdateRecipeResource to UpdateRecipeCommand
- */
 public class UpdateRecipeCommandFromResourceAssembler {
-    public static UpdateRecipeCommand toCommandFromResource(Long recipeId, UpdateRecipeResource resource) {
+    public static UpdateRecipeCommand toCommandFromResource(
+            Long userId, Long recipeId, UpdateRecipeResource resource) {
         return new UpdateRecipeCommand(
+            userId,
             recipeId,
             resource.name(),
             resource.imageUrl(),
@@ -24,4 +23,4 @@ public class UpdateRecipeCommandFromResourceAssembler {
             resource.grindSize()
         );
     }
-} 
+}

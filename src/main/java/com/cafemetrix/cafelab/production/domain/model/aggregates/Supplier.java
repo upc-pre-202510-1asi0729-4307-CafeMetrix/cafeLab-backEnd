@@ -12,9 +12,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Supplier Aggregate Root
- */
+/** Proveedor; {@code userId} persiste en {@code user_id} (FK a profiles.id). */
 @Entity
 @Table(name = "suppliers")
 public class Supplier extends AuditableAbstractAggregateRoot<Supplier> {
@@ -43,14 +41,10 @@ public class Supplier extends AuditableAbstractAggregateRoot<Supplier> {
     @Column(name = "specialty", length = 100)
     private List<String> specialties = new ArrayList<>();
 
-    /**
-     * Constructor por defecto
-     */
+    
     public Supplier() {}
 
-    /**
-     * Constructor principal
-     */
+    
     public Supplier(Long userId, String name, String email, Long phone, String location, List<String> specialties) {
         this.userId = userId;
         this.name = new SupplierName(name);
@@ -60,9 +54,7 @@ public class Supplier extends AuditableAbstractAggregateRoot<Supplier> {
         this.specialties = specialties != null ? new ArrayList<>(specialties) : new ArrayList<>();
     }
 
-    /**
-     * Constructor con comando
-     */
+    
     public Supplier(CreateSupplierCommand command) {
         this.userId = command.userId();
         this.name = new SupplierName(command.name());
@@ -72,9 +64,7 @@ public class Supplier extends AuditableAbstractAggregateRoot<Supplier> {
         this.specialties = command.specialties() != null ? new ArrayList<>(command.specialties()) : new ArrayList<>();
     }
 
-    /**
-     * Método para actualizar el proveedor
-     */
+    
     public Supplier update(UpdateSupplierCommand command) {
         this.name = new SupplierName(command.name());
         this.email = new SupplierEmail(command.email());
@@ -84,10 +74,9 @@ public class Supplier extends AuditableAbstractAggregateRoot<Supplier> {
         return this;
     }
 
-    // Getters
     public String getName() { return name.value(); }
     public String getEmail() { return email.value(); }
     public Long getPhone() { return phone; }
     public String getLocation() { return location.value(); }
     public List<String> getSpecialties() { return new ArrayList<>(specialties); }
-} 
+}

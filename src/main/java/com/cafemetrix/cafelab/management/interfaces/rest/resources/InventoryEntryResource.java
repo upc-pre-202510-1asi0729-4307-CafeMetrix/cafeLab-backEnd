@@ -1,11 +1,8 @@
 package com.cafemetrix.cafelab.management.interfaces.rest.resources;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-/**
- * Resource for inventory entry
- */
+/** DTO; {@code userId} corresponde a columna {@code user_id} en BD. */
 public record InventoryEntryResource(
     Long id,
     Long userId,
@@ -13,4 +10,4 @@ public record InventoryEntryResource(
     Double quantityUsed,
     LocalDateTime dateUsed,
     String finalProduct
-) {} 
+) {}

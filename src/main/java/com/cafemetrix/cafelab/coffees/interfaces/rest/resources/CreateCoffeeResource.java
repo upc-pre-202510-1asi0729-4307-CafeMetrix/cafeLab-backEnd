@@ -1,8 +1,5 @@
 package com.cafemetrix.cafelab.coffees.interfaces.rest.resources;
 
-/**
- * Resource for creating a coffee.
- */
 public record CreateCoffeeResource(
         String name,
         String region,

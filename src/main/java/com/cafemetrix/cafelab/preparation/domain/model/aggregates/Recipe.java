@@ -8,13 +8,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 /**
- * Recipe Aggregate Root
+ * Receta de preparación; {@code userId} persiste en columna {@code user_id} (FK a profiles.id).
  */
 @Entity
 public class Recipe extends AuditableAbstractAggregateRoot<Recipe> {
-    
+
     @Getter
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Embedded
@@ -56,17 +56,22 @@ public class Recipe extends AuditableAbstractAggregateRoot<Recipe> {
     @Column(name = "grind_size", length = 20, nullable = false)
     private String grindSize;
 
-    /**
-     * Constructor por defecto
-     */
     public Recipe() {}
 
-    /**
-     * Constructor principal
-     */
-    public Recipe(Long userId, String name, String imageUrl, String extractionMethod, 
-                 String extractionCategory, String ratio, Long cuppingSessionId, Long portfolioId, 
-                 Integer preparationTime, String steps, String tips, String cupping, String grindSize) {
+    public Recipe(
+            Long userId,
+            String name,
+            String imageUrl,
+            String extractionMethod,
+            String extractionCategory,
+            String ratio,
+            Long cuppingSessionId,
+            Long portfolioId,
+            Integer preparationTime,
+            String steps,
+            String tips,
+            String cupping,
+            String grindSize) {
         this.userId = userId;
         this.name = new RecipeName(name);
         this.imageUrl = imageUrl;
@@ -82,9 +87,6 @@ public class Recipe extends AuditableAbstractAggregateRoot<Recipe> {
         this.grindSize = grindSize;
     }
 
-    /**
-     * Constructor con comando
-     */
     public Recipe(CreateRecipeCommand command) {
         this.userId = command.userId();
         this.name = new RecipeName(command.name());
@@ -101,9 +103,6 @@ public class Recipe extends AuditableAbstractAggregateRoot<Recipe> {
         this.grindSize = command.grindSize();
     }
 
-    /**
-     * Método para actualizar la receta
-     */
     public Recipe update(UpdateRecipeCommand command) {
         this.name = new RecipeName(command.name());
         this.imageUrl = command.imageUrl();
@@ -120,15 +119,43 @@ public class Recipe extends AuditableAbstractAggregateRoot<Recipe> {
         return this;
     }
 
-    // Getters
-    public String getName() { return name.value(); }
-    public String getImageUrl() { return imageUrl; }
-    public ExtractionMethod getExtractionMethod() { return extractionMethod; }
-    public ExtractionCategory getExtractionCategory() { return extractionCategory; }
-    public String getRatio() { return ratio; }
-    public Integer getPreparationTime() { return preparationTime; }
-    public String getSteps() { return steps; }
-    public String getTips() { return tips; }
-    public String getCupping() { return cupping; }
-    public String getGrindSize() { return grindSize; }
-} 
+    public String getName() {
+        return name.value();
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public ExtractionMethod getExtractionMethod() {
+        return extractionMethod;
+    }
+
+    public ExtractionCategory getExtractionCategory() {
+        return extractionCategory;
+    }
+
+    public String getRatio() {
+        return ratio;
+    }
+
+    public Integer getPreparationTime() {
+        return preparationTime;
+    }
+
+    public String getSteps() {
+        return steps;
+    }
+
+    public String getTips() {
+        return tips;
+    }
+
+    public String getCupping() {
+        return cupping;
+    }
+
+    public String getGrindSize() {
+        return grindSize;
+    }
+}

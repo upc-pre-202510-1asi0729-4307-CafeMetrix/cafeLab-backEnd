@@ -2,9 +2,6 @@ package com.cafemetrix.cafelab.defects.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
 
-/**
- * DefectType Value Object
- */
 @Embeddable
 public record DefectType(String value) {
     public DefectType() {

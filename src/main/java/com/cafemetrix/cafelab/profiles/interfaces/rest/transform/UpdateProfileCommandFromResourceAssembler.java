@@ -4,9 +4,9 @@ import com.cafemetrix.cafelab.profiles.domain.model.commands.UpdateProfileComman
 import com.cafemetrix.cafelab.profiles.interfaces.rest.resources.UpdateProfileResource;
 
 public class UpdateProfileCommandFromResourceAssembler {
-    public static UpdateProfileCommand toCommandFromResource(Long profileId, UpdateProfileResource resource) {
+    public static UpdateProfileCommand toCommandFromResource(Long userId, UpdateProfileResource resource) {
         return new UpdateProfileCommand(
-                profileId,
+                userId,
                 resource.name(),
                 resource.email(),
                 resource.cafeteriaName(),

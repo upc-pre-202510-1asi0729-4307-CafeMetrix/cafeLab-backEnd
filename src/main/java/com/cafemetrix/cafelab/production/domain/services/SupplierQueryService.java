@@ -8,11 +8,8 @@ import com.cafemetrix.cafelab.production.domain.model.queries.GetSuppliersByUser
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Supplier Query Service Interface
- */
 public interface SupplierQueryService {
     List<Supplier> handle(GetAllSuppliersQuery query);
     Optional<Supplier> handle(GetSupplierByIdQuery query);
     List<Supplier> handle(GetSuppliersByUserIdQuery query);
-} 
+}

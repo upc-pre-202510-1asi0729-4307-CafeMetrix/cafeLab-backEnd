@@ -1,5 +1,7 @@
 package com.cafemetrix.cafelab.coffees.interfaces.rest;
 
+import com.cafemetrix.cafelab.coffees.domain.exceptions.CoffeeCreationFailedException;
+import com.cafemetrix.cafelab.coffees.domain.exceptions.CoffeeNotFoundException;
 import com.cafemetrix.cafelab.coffees.domain.model.queries.GetAllCoffeesQuery;
 import com.cafemetrix.cafelab.coffees.domain.model.queries.GetCoffeeByIdQuery;
 import com.cafemetrix.cafelab.coffees.domain.services.CoffeeCommandService;
@@ -19,9 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * CoffeesController
- */
 @RestController
 @RequestMapping(value = "/api/v1/coffees", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Coffees", description = "Available Coffee Endpoints")
@@ -42,7 +41,7 @@ public class CoffeesController {
     public ResponseEntity<CoffeeResource> createCoffee(@RequestBody CreateCoffeeResource resource) {
         var createCoffeeCommand = CreateCoffeeCommandFromResourceAssembler.toCommandFromResource(resource);
         var coffee = coffeeCommandService.handle(createCoffeeCommand);
-        if (coffee.isEmpty()) return ResponseEntity.badRequest().build();
+        if (coffee.isEmpty()) throw new CoffeeCreationFailedException();
         var createdCoffee = coffee.get();
         var coffeeResource = CoffeeResourceFromEntityAssembler.toResourceFromEntity(createdCoffee);
         return new ResponseEntity<>(coffeeResource, HttpStatus.CREATED);
@@ -56,7 +55,7 @@ public class CoffeesController {
     public ResponseEntity<CoffeeResource> getCoffeeById(@PathVariable Long coffeeId) {
         var getCoffeeByIdQuery = new GetCoffeeByIdQuery(coffeeId);
         var coffee = coffeeQueryService.handle(getCoffeeByIdQuery);
-        if (coffee.isEmpty()) return ResponseEntity.notFound().build();
+        if (coffee.isEmpty()) throw new CoffeeNotFoundException(coffeeId);
         var coffeeEntity = coffee.get();
         var coffeeResource = CoffeeResourceFromEntityAssembler.toResourceFromEntity(coffeeEntity);
         return ResponseEntity.ok(coffeeResource);
@@ -69,7 +68,9 @@ public class CoffeesController {
             @ApiResponse(responseCode = "404", description = "Coffees not found")})
     public ResponseEntity<List<CoffeeResource>> getAllCoffees() {
         var coffees = coffeeQueryService.handle(new GetAllCoffeesQuery());
-        if (coffees.isEmpty()) return ResponseEntity.notFound().build();
+        if (coffees.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
         var coffeeResources = coffees.stream()
                 .map(CoffeeResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();

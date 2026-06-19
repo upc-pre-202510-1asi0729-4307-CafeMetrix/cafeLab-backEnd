@@ -7,11 +7,8 @@ import com.cafemetrix.cafelab.preparation.domain.model.commands.DeleteRecipeComm
 
 import java.util.Optional;
 
-/**
- * Recipe Command Service Interface
- */
 public interface RecipeCommandService {
     Optional<Recipe> handle(CreateRecipeCommand command);
     Optional<Recipe> handle(UpdateRecipeCommand command);
     boolean handle(DeleteRecipeCommand command);
-} 
+}
