@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Mismo modelo IAM que en MediTrack (email + password + role). La columna JPA {@code username} conserva el nombre
+ * Usuario IAM (email + contraseña + rol). La columna JPA {@code username} conserva el nombre
  * histórico en MySQL; el valor almacenado es el email de acceso.
  */
 @Entity

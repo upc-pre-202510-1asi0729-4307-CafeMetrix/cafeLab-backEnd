@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
  * Shared exception handlers for bounded-context {@code @RestControllerAdvice} beans
- * (MediTrack {@code OrganizationExceptionHandler} style, with {@link MessageResource} bodies).
+ * (scoped handlers with {@link MessageResource} bodies).
  */
 public abstract class CafeLabScopedExceptionHandlerSupport {
 
