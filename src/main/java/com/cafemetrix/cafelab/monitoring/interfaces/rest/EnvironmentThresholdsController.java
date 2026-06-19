@@ -31,7 +31,7 @@ public class EnvironmentThresholdsController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EnvironmentThresholdResource> createThreshold(@RequestBody CreateEnvironmentThresholdResource resource) {
-        var command = new CreateEnvironmentThresholdCommand(resource.coffeeLotId(), resource.minTemperature(), resource.maxTemperature(), resource.minHumidity(), resource.maxHumidity());
+        var command = new CreateEnvironmentThresholdCommand(resource.coffeeLotId(), resource.minTemperature(), resource.maxTemperature(), resource.minHumidity(), resource.maxHumidity(), resource.syncIntervalSeconds());
         var threshold = thresholdCommandService.handle(command);
 
         if (threshold.isEmpty()) {
@@ -55,7 +55,7 @@ public class EnvironmentThresholdsController {
 
     @PutMapping(value = "/coffee-lot/{coffeeLotId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EnvironmentThresholdResource> updateThreshold(@PathVariable Long coffeeLotId, @RequestBody CreateEnvironmentThresholdResource resource) {
-        var command = new UpdateEnvironmentThresholdCommand(coffeeLotId, resource.minTemperature(), resource.maxTemperature(), resource.minHumidity(), resource.maxHumidity());
+        var command = new UpdateEnvironmentThresholdCommand(coffeeLotId, resource.minTemperature(), resource.maxTemperature(), resource.minHumidity(), resource.maxHumidity(), resource.syncIntervalSeconds());
         var updatedThreshold = thresholdCommandService.handle(command);
 
         if (updatedThreshold.isEmpty()) {

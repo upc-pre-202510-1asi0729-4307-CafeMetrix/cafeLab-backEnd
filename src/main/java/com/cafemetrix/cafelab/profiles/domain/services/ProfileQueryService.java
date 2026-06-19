@@ -1,6 +1,8 @@
 package com.cafemetrix.cafelab.profiles.domain.services;
 
 import com.cafemetrix.cafelab.profiles.domain.model.aggregates.Profile;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.CheckCafeteriaAvailabilityQuery;
+import com.cafemetrix.cafelab.profiles.domain.model.queries.CheckEmailAvailabilityQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetAllProfilesQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByEmailQuery;
 import com.cafemetrix.cafelab.profiles.domain.model.queries.GetProfileByIamUserIdQuery;
@@ -38,4 +40,8 @@ public interface ProfileQueryService {
      * @return A list of {@link Profile} instances
      */
     List<Profile> handle(GetAllProfilesQuery query);
+
+    boolean handle(CheckEmailAvailabilityQuery query);
+
+    boolean handle(CheckCafeteriaAvailabilityQuery query);
 }

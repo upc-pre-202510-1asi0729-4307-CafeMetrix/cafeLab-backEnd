@@ -35,4 +35,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
      * @return True if the email address exists, otherwise false
      */
     boolean existsByEmailAddress(EmailAddress emailAddress);
+
+    @Query("SELECT p FROM Profile p WHERE LOWER(TRIM(p.cafeteriaName)) = :name AND TRIM(COALESCE(p.cafeteriaName, '')) <> ''")
+    Optional<Profile> findByNormalizedCafeteriaName(@Param("name") String normalizedName);
 }

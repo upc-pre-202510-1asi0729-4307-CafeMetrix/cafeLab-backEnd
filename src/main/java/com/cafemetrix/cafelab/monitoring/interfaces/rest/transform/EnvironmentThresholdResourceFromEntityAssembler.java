@@ -11,7 +11,8 @@ public class EnvironmentThresholdResourceFromEntityAssembler {
                 entity.getTemperatureThreshold().minTemperature(),
                 entity.getTemperatureThreshold().maxTemperature(),
                 entity.getHumidityThreshold().minHumidity(),
-                entity.getHumidityThreshold().maxHumidity()
+                entity.getHumidityThreshold().maxHumidity(),
+                entity.getSyncIntervalSeconds()
         );
     }
 }
